@@ -30,13 +30,12 @@ def mover_memes_a_usados(memes):
         meme.rename(Path(__file__).parent.parent / "memes" / "usados" / categoria / meme.name)
 
 #Se encarga de que en caso de que no haya memes en la carpeta de "disponibles" se muevan los memes de "usados" a "disponibles" para seguir reutilizandolos
-def revisar_si_hay_memes_disponibles(carpeta, memes):
-    if not memes:
-            memes_usados = Path(__file__).parent.parent / "memes" / "usados" / carpeta.name
-            usados = [n for n in memes_usados.iterdir() if n.is_file()]
-            for usado in usados:
-             usado.rename(Path(__file__).parent.parent / "memes" / "disponibles" / carpeta.name / usado.name)
-            return seleccionar_memes(carpeta)
+def revisar_si_hay_memes_disponibles(carpeta):
+    memes_usados = Path(__file__).parent.parent / "memes" / "usados" / carpeta.name
+    usados = [n for n in memes_usados.iterdir() if n.is_file()]
+    for usado in usados:
+        usado.rename(Path(__file__).parent.parent / "memes" / "disponibles" / carpeta.name / usado.name)
+    return seleccionar_memes(carpeta)
 
 #Funcion principal encargada de ejecutar todo y otorgarle los archivos al script ensamblador.py
 def main():
@@ -52,7 +51,7 @@ def main():
     try:
         memes = seleccionar_memes(carpeta)
     except:
-        memes = revisar_si_hay_memes_disponibles(carpeta, memes)
+        memes = revisar_si_hay_memes_disponibles(carpeta)
     mover_memes_a_usados(memes)
     mover_archivo(ruta_fondo, fondo)
     mover_archivo(ruta_like, like)
