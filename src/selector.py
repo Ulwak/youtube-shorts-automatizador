@@ -5,7 +5,7 @@ from pathlib import Path
 # y cumpliendo la misma funcion.
 def seleccionar_archivo(ruta):
     archivo = Path(ruta)
-    archivo_2 = [n for n in archivo.iterdir() if n.is_file()]
+    archivo_2 = [n for n in archivo.iterdir() if n.is_file() and not n.name.startswith('.')]
     return random.choice(archivo_2)
 
 #Esta funcion mueve los archivos utilizando la ruta y su nombre para organizacion y futura reutilizacion
@@ -20,7 +20,7 @@ def seleccionar_categoria():
 
 #Encargada de seleccionar los memes a adjuntar en el video
 def seleccionar_memes(carpeta):
-    memes = [n for n in carpeta.iterdir() if n.is_file()]
+    memes = [n for n in carpeta.iterdir() if n.is_file() and not n.name.startswith('.')]
     return random.sample(memes, 2)
 
 #Encargada de poner los memes en el lugar de "usados" para evitar repetirlos y a futuro reutilizarlos
@@ -32,7 +32,7 @@ def mover_memes_a_usados(memes):
 #Se encarga de que en caso de que no haya memes en la carpeta de "disponibles" se muevan los memes de "usados" a "disponibles" para seguir reutilizandolos
 def revisar_si_hay_memes_disponibles(carpeta):
     memes_usados = Path(__file__).parent.parent / "memes" / "usados" / carpeta.name
-    usados = [n for n in memes_usados.iterdir() if n.is_file()]
+    usados = [n for n in memes_usados.iterdir() if n.is_file() and not n.name.startswith('.')]
     for usado in usados:
         usado.rename(Path(__file__).parent.parent / "memes" / "disponibles" / carpeta.name / usado.name)
     return seleccionar_memes(carpeta)
