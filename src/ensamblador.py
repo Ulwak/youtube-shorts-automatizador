@@ -32,7 +32,7 @@ def textos_short_creacion_ubicacion():
         color="#ff66cc",
         stroke_color="#ff00aa",
         stroke_width=3
-    )
+    ).with_duration(DURACION_DEL_SHORT)
 
     texto2 = TextClip(
         text="LIKE Y SUSCRIBETE",
@@ -41,7 +41,7 @@ def textos_short_creacion_ubicacion():
         color="#ff66cc",
         stroke_color="#ff00aa",
         stroke_width=3
-    )
+    ).with_duration(DURACION_DEL_SHORT)
 
     return texto1, texto2
 
@@ -84,7 +84,9 @@ def ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica
 
     short = CompositeVideoClip([imagen_fondo, imagen_memes[0], texto1, imagenes[0], imagenes[1], texto2, imagen_memes[1]]).with_audio(musica)
 
-    short.write_videofile(str(ubicacion_shorts / nombre))
+    short.write_videofile(str(ubicacion_shorts / nombre), fps = 30)
+
+    short.close()
 
 def ensamblador_short(memes, fondo, like, musica, comentarios):
     imagenes, imagen_fondo, imagen_memes = size_de_imagenes(memes, fondo, like, musica, comentarios)
