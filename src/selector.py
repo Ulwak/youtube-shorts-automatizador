@@ -57,6 +57,7 @@ def main():
     mover_archivo(ruta_like, like)
     mover_archivo(ruta_musica, musica)
     mover_archivo(ruta_comentarios, comentarios)
+    
     return memes, fondo, like, musica, comentarios
 
 if __name__ == "__main__":

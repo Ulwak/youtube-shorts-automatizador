@@ -45,24 +45,43 @@ def textos_short_creacion_ubicacion():
 
     return texto1, texto2
 
-def ubicacion_de_imagenes(imagenes, imagen_fondo, imagen_memes, texto1, texto2):
+def ubicacion_de_imagenes(imagenes, imagen_memes, texto1, texto2):
     altura_meme_1_2 = imagen_memes[0].h
-    coordenadas_y_meme1 = MARGEN_ALTURA 
-    coordenadas_x_meme1_2 = int((ANCHO_DE_VIDEO - imagen_memes[0].w) / 2)
+    y_meme1 = MARGEN_ALTURA 
+    x_meme1_2 = int((ANCHO_DE_VIDEO - imagen_memes[0].w) / 2)
 
     texto1_y = int(MARGEN_ALTURA + altura_meme_1_2)
     texto1_x = int((ANCHO_DE_VIDEO - texto1.w) / 2)
 
-
-
     altura_centrales = imagenes[0].h
-    cordenadas_y_central = MARGEN_ALTURA + altura_meme_1_2 + texto1.h
-    coordenadas_x_central1 = int((ANCHO_DE_VIDEO - (imagenes[0].w * 2)) / 2)
-    coordenadas_x_central2 = int(coordenadas_x_central1 + imagenes[0].w)
+    y_central = MARGEN_ALTURA + altura_meme_1_2 + texto1.h
+    x_central1 = int((ANCHO_DE_VIDEO - (imagenes[0].w * 2)) / 2)
+    x_central2 = int(x_central1 + imagenes[0].w)
 
     texto2_y = int(MARGEN_ALTURA + altura_meme_1_2 + texto1.h + altura_centrales)
     texto2_x = int((ANCHO_DE_VIDEO - texto2.w) / 2)
 
-    cordenadas_y_meme2 = int(MARGEN_ALTURA + altura_meme_1_2 + texto1.h + altura_centrales + texto2.h)
+    y_meme2 = int(MARGEN_ALTURA + altura_meme_1_2 + texto1.h + altura_centrales + texto2.h)
+       
+    imagen_memes[0] = imagen_memes[0].with_position((x_meme1_2, y_meme1))
+    imagen_memes[1] = imagen_memes[1].with_position((x_meme1_2, y_meme2))
 
+    texto1 = texto1.with_position((texto1_x, texto1_y))
+    texto2 = texto2.with_position((texto2_x, texto2_y))
 
+    imagenes[0] = imagenes[0].with_position((x_central1, y_central))
+    imagenes[1] = imagenes[1].with_position((x_central2, y_central))
+
+    return imagenes, imagen_memes, texto1, texto2
+
+def ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica):
+
+    musica = AudioFileClip(str(musica)).with_duration(DURACION_DEL_SHORT)
+
+    ubicacion_shorts = Path(__file__).parent.parent / "output"
+    contador = len(list([n for n in ubicacion_shorts.iterdir() if n.is_file() and not n.name.startswith('.')]))
+    nombre = f"short_{contador + 1:03d}.mp4"
+
+    short = CompositeVideoClip([imagen_fondo, imagen_memes[0], texto1, imagenes[0], imagenes[1], texto2, imagen_memes[1]]).with_audio(musica)
+
+    short.write_videofile(str(ubicacion_shorts / nombre))
