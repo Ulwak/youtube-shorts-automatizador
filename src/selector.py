@@ -10,7 +10,7 @@ def seleccionar_archivo(ruta):
 
 #Esta funcion mueve los archivos utilizando la ruta y su nombre para organizacion y futura reutilizacion
 def mover_archivo(ruta, archivo):
-    archivo.rename(Path(ruta / "usados" / archivo.name))
+    archivo.rename(ruta / "usados" / archivo.name)
 
 #Esta funcion se encarga de seleccionar la categoria del short a crear en base a una lista de carpetas
 def seleccionar_categoria():
@@ -29,8 +29,16 @@ def mover_memes_a_usados(memes):
         categoria = meme.parent.name
         meme.rename(Path(__file__).parent.parent / "memes" / "usados" / categoria / meme.name)
 
+
+def reponer_archivos(ruta):
+    archivo = Path(ruta).parent / "usados"
+    usados = [n for n in archivo.iterdir() if n.is_file() and not n.name.startswith('.')]
+    for usado in usados:
+        usado.rename(Path(ruta).parent / "disponibles" / usado.name)
+    return seleccionar_archivo(ruta)
+
 #Se encarga de que en caso de que no haya memes en la carpeta de "disponibles" se muevan los memes de "usados" a "disponibles" para seguir reutilizandolos
-def revisar_si_hay_memes_disponibles(carpeta):
+def reponer_memes(carpeta):
     memes_usados = Path(__file__).parent.parent / "memes" / "usados" / carpeta.name
     usados = [n for n in memes_usados.iterdir() if n.is_file() and not n.name.startswith('.')]
     for usado in usados:
@@ -44,14 +52,27 @@ def seleccionador_archivos():
     ruta_like = Path(__file__).parent.parent / "likes"
     ruta_comentarios = Path(__file__).parent.parent / "comentarios"
     carpeta = seleccionar_categoria()
-    fondo = seleccionar_archivo(ruta_fondo / "disponibles")
-    like = seleccionar_archivo(ruta_like / "disponibles")
-    musica = seleccionar_archivo(ruta_musica / "disponibles")
-    comentarios = seleccionar_archivo(ruta_comentarios / "disponibles")  
+    try:
+        fondo = seleccionar_archivo(ruta_fondo / "disponibles")
+    except ValueError:
+        fondo = reponer_archivos(ruta_fondo)
+    try:
+        like = seleccionar_archivo(ruta_like / "disponibles")
+    except ValueError:
+        like = reponer_archivos(ruta_like)
+    try:
+        musica = seleccionar_archivo(ruta_musica / "disponibles")
+    except ValueError:
+        musica = reponer_archivos(ruta_musica)
+    try:
+        comentarios = seleccionar_archivo(ruta_comentarios / "disponibles")
+    except ValueError:
+        comentarios = reponer_archivos(ruta_comentarios)
     try:
         memes = seleccionar_memes(carpeta)
-    except:
-        memes = revisar_si_hay_memes_disponibles(carpeta)
+    except ValueError:
+        memes = reponer_memes(carpeta)
+    
     mover_memes_a_usados(memes)
     mover_archivo(ruta_fondo, fondo)
     mover_archivo(ruta_like, like)
