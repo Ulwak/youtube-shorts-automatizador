@@ -38,7 +38,7 @@ def revisar_si_hay_memes_disponibles(carpeta):
     return seleccionar_memes(carpeta)
 
 #Funcion principal encargada de ejecutar todo y otorgarle los archivos al script ensamblador.py
-def main():
+def seleccionador_archivos():
     ruta_musica = Path(__file__).parent.parent / "musica"
     ruta_fondo = Path(__file__).parent.parent / "fondos"
     ruta_like = Path(__file__).parent.parent / "likes"
@@ -57,8 +57,5 @@ def main():
     mover_archivo(ruta_like, like)
     mover_archivo(ruta_musica, musica)
     mover_archivo(ruta_comentarios, comentarios)
-    
-    return memes, fondo, like, musica, comentarios
 
-if __name__ == "__main__":
-    main()
+    return memes, fondo, like, musica, comentarios

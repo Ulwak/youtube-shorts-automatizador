@@ -85,3 +85,13 @@ def ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica
     short = CompositeVideoClip([imagen_fondo, imagen_memes[0], texto1, imagenes[0], imagenes[1], texto2, imagen_memes[1]]).with_audio(musica)
 
     short.write_videofile(str(ubicacion_shorts / nombre))
+
+def ensamblador_short(memes, fondo, like, musica, comentarios):
+    imagenes, imagen_fondo, imagen_memes = size_de_imagenes(memes, fondo, like, musica, comentarios)
+
+    texto1, texto2 = textos_short_creacion_ubicacion()
+
+    imagenes, imagen_memes, texto1, texto2 = ubicacion_de_imagenes(imagenes, imagen_memes, texto1, texto2)
+    
+    ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica)
+

@@ -216,3 +216,18 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+memes/**
+!memes/**/.gitkeep
+fondos/**
+!fondos/**/.gitkeep
+musica/**
+!musica/**/.gitkeep
+likes/**
+!likes/**/.gitkeep
+comentarios/**
+!comentarios/**/.gitkeep
+output/**
+!output/**/.gitkeep
+fuentes/**
+!fuentes/**/.gitkeep
