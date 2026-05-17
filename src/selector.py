@@ -1,12 +1,18 @@
 import random
 from pathlib import Path
 
-#Esta funcion es reutilizable ya que solo se le debe asignar la ruta de la carpeta logrando ahorrar varias lineas de codigo 
-# y cumpliendo la misma funcion.
-def seleccionar_archivo(ruta):
-    archivo = Path(ruta)
-    archivo_2 = [n for n in archivo.iterdir() if n.is_file() and not n.name.startswith('.')]
-    return random.choice(archivo_2)
+#Esta funcion es reutilizable y permite mediante una ruta ya asignada determinar si hay archivos en la misma o en caso contrario reponerlos.
+def verificar_y_seleccionar_archivos(ruta):
+    try:
+        archivo = (ruta / "disponibles")
+        archivo_2 = [n for n in archivo.iterdir() if n.is_file() and not n.name.startswith('.')]
+        return random.choice(archivo_2)
+    except ValueError:
+        ubicacion = (ruta / "usados")
+        usados = [n for n in ubicacion.iterdir() if n.is_file() and not n.name.startswith('.')]
+        for usado in usados:
+            usado.rename(Path(ruta) / "disponibles" / usado.name)
+    return verificar_y_seleccionar_archivos(ruta)
 
 #Esta funcion mueve los archivos utilizando la ruta y su nombre para organizacion y futura reutilizacion
 def mover_archivo(ruta, archivo):
@@ -18,32 +24,23 @@ def seleccionar_categoria():
     carpeta = [n for n in contenido.iterdir() if n.is_dir()]
     return random.choice(carpeta)
 
-#Encargada de seleccionar los memes a adjuntar en el video
-def seleccionar_memes(carpeta):
-    memes = [n for n in carpeta.iterdir() if n.is_file() and not n.name.startswith('.')]
-    return random.sample(memes, 2)
-
 #Encargada de poner los memes en el lugar de "usados" para evitar repetirlos y a futuro reutilizarlos
 def mover_memes_a_usados(memes):
     for meme in memes:
         categoria = meme.parent.name
         meme.rename(Path(__file__).parent.parent / "memes" / "usados" / categoria / meme.name)
 
-
-def reponer_archivos(ruta):
-    archivo = Path(ruta).parent / "usados"
-    usados = [n for n in archivo.iterdir() if n.is_file() and not n.name.startswith('.')]
-    for usado in usados:
-        usado.rename(Path(ruta).parent / "disponibles" / usado.name)
-    return seleccionar_archivo(ruta)
-
-#Se encarga de que en caso de que no haya memes en la carpeta de "disponibles" se muevan los memes de "usados" a "disponibles" para seguir reutilizandolos
-def reponer_memes(carpeta):
-    memes_usados = Path(__file__).parent.parent / "memes" / "usados" / carpeta.name
-    usados = [n for n in memes_usados.iterdir() if n.is_file() and not n.name.startswith('.')]
-    for usado in usados:
-        usado.rename(Path(__file__).parent.parent / "memes" / "disponibles" / carpeta.name / usado.name)
-    return seleccionar_memes(carpeta)
+#Se encarga de seleccionar los memes.En caso de que no haya memes en la carpeta de "disponibles" mueve los memes de "usados" a "disponibles" para seguir reutilizandolos
+def seleccionar_y_verificar_memes(carpeta):
+    try:
+        memes = [n for n in carpeta.iterdir() if n.is_file() and not n.name.startswith('.')]
+        return random.sample(memes, 2)
+    except ValueError:
+        memes_usados = Path(__file__).parent.parent / "memes" / "usados" / carpeta.name
+        usados = [n for n in memes_usados.iterdir() if n.is_file() and not n.name.startswith('.')]
+        for usado in usados:
+            usado.rename(Path(__file__).parent.parent / "memes" / "disponibles" / carpeta.name / usado.name)
+    return seleccionar_y_verificar_memes(carpeta)
 
 #Funcion principal encargada de ejecutar todo y otorgarle los archivos al script ensamblador.py
 def seleccionador_archivos():
@@ -52,27 +49,12 @@ def seleccionador_archivos():
     ruta_like = Path(__file__).parent.parent / "likes"
     ruta_comentarios = Path(__file__).parent.parent / "comentarios"
     carpeta = seleccionar_categoria()
-    try:
-        fondo = seleccionar_archivo(ruta_fondo / "disponibles")
-    except ValueError:
-        fondo = reponer_archivos(ruta_fondo)
-    try:
-        like = seleccionar_archivo(ruta_like / "disponibles")
-    except ValueError:
-        like = reponer_archivos(ruta_like)
-    try:
-        musica = seleccionar_archivo(ruta_musica / "disponibles")
-    except ValueError:
-        musica = reponer_archivos(ruta_musica)
-    try:
-        comentarios = seleccionar_archivo(ruta_comentarios / "disponibles")
-    except ValueError:
-        comentarios = reponer_archivos(ruta_comentarios)
-    try:
-        memes = seleccionar_memes(carpeta)
-    except ValueError:
-        memes = reponer_memes(carpeta)
-    
+    fondo = verificar_y_seleccionar_archivos(ruta_fondo)
+    like = verificar_y_seleccionar_archivos(ruta_like)
+    musica = verificar_y_seleccionar_archivos(ruta_musica)
+    comentarios = verificar_y_seleccionar_archivos(ruta_comentarios)
+    memes = seleccionar_y_verificar_memes(carpeta)
+
     mover_memes_a_usados(memes)
     mover_archivo(ruta_fondo, fondo)
     mover_archivo(ruta_like, like)
