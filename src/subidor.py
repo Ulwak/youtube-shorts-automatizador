@@ -6,6 +6,9 @@ from pathlib import Path
 import os
 import json
 import random
+from datetime import datetime
+
+fecha_hoy = datetime.utcnow().strftime('%Y-%m-%dT00:00:00Z')
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 
@@ -38,10 +41,16 @@ def subir_short(ruta_short, categoria):
             "title": titulo,
             "description": descripcion,
             "tags": hashtags,
-            "categoryId": "23"
+            "categoryId": "23",
+            "defaultLanguage":"es-419",
+            "defaultAudioLanguage": "es-419"
         },
         "status": {
             "privacyStatus": "private"
+        },
+        "recordingDetails": {
+            "localDescription": "Argentina",
+            "recordingDate": fecha_hoy
         }
     }
 
@@ -57,7 +66,9 @@ def subir_short(ruta_short, categoria):
     try:
         response = request.execute()
         id_del_short = response["id"]
-    except:
-        print("Carga Fallida")
+        print("Carga Exitosa")
+    except Exception as error:
+        print(f"Error técnico detallado de Google: {error}")
+
     
     return id_del_short
