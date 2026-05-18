@@ -55,19 +55,19 @@ def ubicacion_de_imagenes(imagenes, imagen_memes, texto1, texto2):
     x_meme1_2 = int((ANCHO_DE_VIDEO - imagen_memes[0].w) / 2)
 
     texto1_y = int(margen + altura_meme_1_2)
-    texto1_y = int(texto1_y - 40)
+    texto1_y = int(texto1_y - 70)
     texto1_x = int((ANCHO_DE_VIDEO - texto1.w) / 2)
 
     altura_centrales = imagenes[0].h
-    y_central = int(margen + altura_meme_1_2 + texto1.h)
+    y_central = int(margen + altura_meme_1_2 + texto1.h - 20)
     x_central1 = int((ANCHO_DE_VIDEO - (imagenes[0].w * 2)) / 2)
     x_central2 = int(x_central1 + imagenes[0].w)
 
     texto2_y = int(margen + altura_meme_1_2 + texto1.h + altura_centrales)
-    texto2_y = int(texto2_y - 50)
+    texto2_y = int(texto2_y - 70)
     texto2_x = int((ANCHO_DE_VIDEO - texto2.w) / 2)
 
-    y_meme2 = int(margen + altura_meme_1_2 + texto1.h + altura_centrales + texto2.h)
+    y_meme2 = int(margen + altura_meme_1_2 + texto1.h + altura_centrales + texto2.h - 20)
        
     imagen_memes[0] = imagen_memes[0].with_position((x_meme1_2, y_meme1))
     imagen_memes[1] = imagen_memes[1].with_position((x_meme1_2, y_meme2))

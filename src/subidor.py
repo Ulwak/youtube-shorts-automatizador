@@ -57,7 +57,7 @@ def subir_short(ruta_short, categoria):
     short = MediaFileUpload(str(ruta_short), mimetype="video/mp4", resumable=True)
 
     request = youtube.videos().insert(
-        part="snippet,status",
+        part="snippet,status,recordingDetails",
         body=cuerpo,
         media_body=short,
     )
