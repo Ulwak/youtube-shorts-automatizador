@@ -7,7 +7,7 @@ def verificar_y_seleccionar_archivos(ruta):
         archivo = (ruta / "disponibles")
         archivo_2 = [n for n in archivo.iterdir() if n.is_file() and not n.name.startswith('.')]
         return random.choice(archivo_2)
-    except ValueError:
+    except (ValueError, IndexError):
         ubicacion = (ruta / "usados")
         usados = [n for n in ubicacion.iterdir() if n.is_file() and not n.name.startswith('.')]
         for usado in usados:
@@ -35,7 +35,7 @@ def seleccionar_y_verificar_memes(carpeta):
     try:
         memes = [n for n in carpeta.iterdir() if n.is_file() and not n.name.startswith('.')]
         return random.sample(memes, 2)
-    except ValueError:
+    except (ValueError, IndexError):
         memes_usados = Path(__file__).parent.parent / "memes" / "usados" / carpeta.name
         usados = [n for n in memes_usados.iterdir() if n.is_file() and not n.name.startswith('.')]
         for usado in usados:

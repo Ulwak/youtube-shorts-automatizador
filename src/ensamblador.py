@@ -26,42 +26,48 @@ def size_de_imagenes(memes, fondo, like, musica, comentarios):
 
 def textos_short_creacion_ubicacion():
     texto1 = TextClip(
-        text="MEMES PARA TODOS/AS",
-        font_size=57,
+        text="\nMEMES PARA TODOS/AS\n",
+        font_size=70,
         font= str(Path(__file__).parent.parent / "fuentes" / "Anton" / "Anton-Regular.ttf"),
         color="#ff66cc",
         stroke_color="#ff00aa",
-        stroke_width=3
+        stroke_width=3,
+        bg_color= (0, 0, 0, 0),
     ).with_duration(DURACION_DEL_SHORT)
 
     texto2 = TextClip(
-        text="LIKE Y SUSCRIBETE",
-        font_size=57,
+        text="\nLIKE Y SUSCRIBETE\n",
+        font_size=70,
         font= str(Path(__file__).parent.parent / "fuentes" / "Anton" / "Anton-Regular.ttf"),
         color="#ff66cc",
         stroke_color="#ff00aa",
-        stroke_width=3
+        stroke_width=3,
+        bg_color= (0, 0, 0, 0),
     ).with_duration(DURACION_DEL_SHORT)
 
     return texto1, texto2
 
 def ubicacion_de_imagenes(imagenes, imagen_memes, texto1, texto2):
+    altura_imagenes = int(imagen_memes[0].h + imagen_memes[1].h + imagenes[0].h + texto1.h + texto2.h)
+    margen = int((ALTO_DE_VIDEO - altura_imagenes) / 2)
     altura_meme_1_2 = imagen_memes[0].h
-    y_meme1 = MARGEN_ALTURA 
+    y_meme1 = margen
     x_meme1_2 = int((ANCHO_DE_VIDEO - imagen_memes[0].w) / 2)
 
-    texto1_y = int(MARGEN_ALTURA + altura_meme_1_2)
+    texto1_y = int(margen + altura_meme_1_2)
+    texto1_y = int(texto1_y - 40)
     texto1_x = int((ANCHO_DE_VIDEO - texto1.w) / 2)
 
     altura_centrales = imagenes[0].h
-    y_central = MARGEN_ALTURA + altura_meme_1_2 + texto1.h
+    y_central = int(margen + altura_meme_1_2 + texto1.h)
     x_central1 = int((ANCHO_DE_VIDEO - (imagenes[0].w * 2)) / 2)
     x_central2 = int(x_central1 + imagenes[0].w)
 
-    texto2_y = int(MARGEN_ALTURA + altura_meme_1_2 + texto1.h + altura_centrales)
+    texto2_y = int(margen + altura_meme_1_2 + texto1.h + altura_centrales)
+    texto2_y = int(texto2_y - 50)
     texto2_x = int((ANCHO_DE_VIDEO - texto2.w) / 2)
 
-    y_meme2 = int(MARGEN_ALTURA + altura_meme_1_2 + texto1.h + altura_centrales + texto2.h)
+    y_meme2 = int(margen + altura_meme_1_2 + texto1.h + altura_centrales + texto2.h)
        
     imagen_memes[0] = imagen_memes[0].with_position((x_meme1_2, y_meme1))
     imagen_memes[1] = imagen_memes[1].with_position((x_meme1_2, y_meme2))
@@ -82,7 +88,7 @@ def ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica
     contador = len(list([n for n in ubicacion_shorts.iterdir() if n.is_file() and not n.name.startswith('.')]))
     nombre = f"short_{contador + 1:03d}.mp4"
 
-    short = CompositeVideoClip([imagen_fondo, imagen_memes[0], texto1, imagenes[0], imagenes[1], texto2, imagen_memes[1]]).with_audio(musica)
+    short = CompositeVideoClip([imagen_fondo, imagen_memes[0], imagenes[0], imagenes[1], imagen_memes[1], texto1, texto2]).with_audio(musica)
 
     short.write_videofile(str(ubicacion_shorts / nombre), fps = 30)
 

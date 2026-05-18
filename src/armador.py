@@ -2,7 +2,14 @@ from selector import seleccionador_archivos, mover_archivo, mover_memes_a_usados
 from ensamblador import ensamblador_short
 
 def main():
-    for _ in range(1):
+    while True:
+        try:
+            i = int(input("Ingrese un numero mayor o igual a 1: "))
+            if i >= 1:
+                break
+        except (ValueError):
+            print("Ingrese un numero entero para continuar")
+    for _ in range(i):
         memes, fondo, like, musica, comentarios, ruta_musica, ruta_fondo, ruta_like, ruta_comentarios = seleccionador_archivos()
         ensamblador_short(memes, fondo, like, musica, comentarios)
         mover_memes_a_usados(memes)
