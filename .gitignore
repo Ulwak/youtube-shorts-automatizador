@@ -231,3 +231,5 @@ output/**
 !output/**/.gitkeep
 fuentes/**
 !fuentes/**/.gitkeep
+credenciales.json
+token.json
