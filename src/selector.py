@@ -55,4 +55,4 @@ def seleccionador_archivos():
     comentarios = verificar_y_seleccionar_archivos(ruta_comentarios)
     memes = seleccionar_y_verificar_memes(carpeta)
 
-    return memes, fondo, like, musica, comentarios, ruta_musica, ruta_fondo, ruta_like, ruta_comentarios
+    return memes, fondo, like, musica, comentarios, ruta_musica, ruta_fondo, ruta_like, ruta_comentarios, carpeta

@@ -93,6 +93,10 @@ def ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica
     short.write_videofile(str(ubicacion_shorts / nombre), fps = 30)
 
     short.close()
+    
+    ruta_short = ubicacion_shorts / nombre
+
+    return ruta_short
 
 def ensamblador_short(memes, fondo, like, musica, comentarios):
     imagenes, imagen_fondo, imagen_memes = size_de_imagenes(memes, fondo, like, musica, comentarios)
@@ -101,5 +105,7 @@ def ensamblador_short(memes, fondo, like, musica, comentarios):
 
     imagenes, imagen_memes, texto1, texto2 = ubicacion_de_imagenes(imagenes, imagen_memes, texto1, texto2)
     
-    ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica)
+    ruta_short = ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica)
+
+    return ruta_short
 

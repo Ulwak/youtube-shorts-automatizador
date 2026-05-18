@@ -1,5 +1,6 @@
 from selector import seleccionador_archivos, mover_archivo, mover_memes_a_usados
 from ensamblador import ensamblador_short
+from subidor import subir_short
 
 def main():
     while True:
@@ -10,13 +11,15 @@ def main():
         except (ValueError):
             print("Ingrese un numero entero para continuar")
     for _ in range(i):
-        memes, fondo, like, musica, comentarios, ruta_musica, ruta_fondo, ruta_like, ruta_comentarios = seleccionador_archivos()
-        ensamblador_short(memes, fondo, like, musica, comentarios)
+        memes, fondo, like, musica, comentarios, ruta_musica, ruta_fondo, ruta_like, ruta_comentarios, carpeta = seleccionador_archivos()
+        ruta_short = ensamblador_short(memes, fondo, like, musica, comentarios)
+        id_short = subir_short(ruta_short, carpeta.name)
         mover_memes_a_usados(memes)
         mover_archivo(ruta_fondo, fondo)
         mover_archivo(ruta_like, like)
         mover_archivo(ruta_musica, musica)
         mover_archivo(ruta_comentarios, comentarios)
+        print(f"youtube.com/shorts/{id_short}")
 
 if __name__ == "__main__":
     main()
