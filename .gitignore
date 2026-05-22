@@ -233,5 +233,7 @@ fuentes/**
 !fuentes/**/.gitkeep
 metadata/**
 !metadata/**/.gitkeep
+animaciones/**
+!animaciones/**/.gitkeep
 credenciales.json
 token.json
