@@ -1,0 +1,9 @@
+CREATE TABLE Memes (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Categoria TEXT NOT NULL,
+    Nombre TEXT NOT NULL,
+    Phash TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS nombres_memes ON Memes(Nombre);
+CREATE INDEX IF NOT EXISTS Phash_memes ON Memes (Phash);

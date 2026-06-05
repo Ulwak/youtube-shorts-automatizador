@@ -237,3 +237,5 @@ animaciones/**
 !animaciones/**/.gitkeep
 credenciales.json
 token.json
+
+*.db
