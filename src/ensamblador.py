@@ -92,8 +92,11 @@ def ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica
 
     short.write_videofile(str(ubicacion_shorts / nombre), fps = 30)
 
-    short.close()
-    
+    cerrar = [imagen_fondo, texto1, texto2, musica] + imagenes + imagen_memes
+
+    for n in cerrar:
+        n.close()
+
     ruta_short = ubicacion_shorts / nombre
 
     return ruta_short
