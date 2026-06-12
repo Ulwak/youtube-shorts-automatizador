@@ -3,7 +3,7 @@ from ensamblador import ensamblador_short
 from subidor import subir_short
 from pathlib import Path
 
-ruta_carpeta_memes_disponible = Path(__file__).parent.parent / "memes" / "disponibles"
+ruta_carpeta_memes_disponible = Path(__file__).parent.parent.parent / "memes" / "disponibles"
 categorias = [n for n in ruta_carpeta_memes_disponible.iterdir() if n.is_dir()]
 
 def contar_memes(ruta_carpeta_memes_disponible, categorias):

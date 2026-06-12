@@ -1,7 +1,7 @@
 import sqlite3
 from pathlib import Path
 
-ruta_db = Path(__file__).parent.parent / "database" / "registro.db"
+ruta_db = Path(__file__).parent.parent.parent / "database" / "registro.db"
 
 def conectar_db():
     conectado = sqlite3.connect(ruta_db)
@@ -12,7 +12,7 @@ def desconectar_db(conectado):
     conectado.close()
 
 def iniciar_db():
-    ruta_sql = Path(__file__).parent.parent / "database" / "registro.sql"
+    ruta_sql = Path(__file__).parent.parent.parent / "database" / "registro.sql"
     
     guia = conectar_db()
 
@@ -50,11 +50,3 @@ def registrar(categoria, nombre_meme, hash_meme):
     guia[0].execute("INSERT INTO Memes (Categoria, Nombre, Phash) VALUES (?, ?, ?)", (categoria, nombre_meme, hash_meme,))
     guia[1].commit()
     desconectar_db(guia[1])
-    
-
-
-def main():
-    iniciar_db()
-
-if __name__ == "__main__":
-    main()

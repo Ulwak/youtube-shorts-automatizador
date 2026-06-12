@@ -28,7 +28,7 @@ def textos_short_creacion_ubicacion():
     texto1 = TextClip(
         text="\nMEMES PARA TODOS/AS\n",
         font_size=70,
-        font= str(Path(__file__).parent.parent / "fuentes" / "Anton" / "Anton-Regular.ttf"),
+        font= str(Path(__file__).parent.parent.parent / "fuentes" / "Anton" / "Anton-Regular.ttf"),
         color="#ff66cc",
         stroke_color="#ff00aa",
         stroke_width=3,
@@ -38,7 +38,7 @@ def textos_short_creacion_ubicacion():
     texto2 = TextClip(
         text="\nLIKE Y SUSCRIBETE\n",
         font_size=70,
-        font= str(Path(__file__).parent.parent / "fuentes" / "Anton" / "Anton-Regular.ttf"),
+        font= str(Path(__file__).parent.parent.parent / "fuentes" / "Anton" / "Anton-Regular.ttf"),
         color="#ff66cc",
         stroke_color="#ff00aa",
         stroke_width=3,
@@ -84,7 +84,7 @@ def ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica
 
     musica = AudioFileClip(str(musica)).with_duration(DURACION_DEL_SHORT)
 
-    ubicacion_shorts = Path(__file__).parent.parent / "output"
+    ubicacion_shorts = Path(__file__).parent.parent.parent / "output"
     contador = len(list([n for n in ubicacion_shorts.iterdir() if n.is_file() and not n.name.startswith('.')]))
     nombre = f"short_{contador + 1:03d}.mp4"
 

@@ -28,7 +28,7 @@ def subir_short(ruta_short, categoria):
         credenciales = autenticacion()
         youtube = build("youtube", "v3", credentials=credenciales)
 
-        ruta_json = Path(__file__).parent.parent / "metadata" / "metadata.json"
+        ruta_json = Path(__file__).parent.parent.parent / "metadata" / "metadata.json"
         with open(ruta_json, "r", encoding="utf-8") as archivo:
             contenido = json.load(archivo)
         
