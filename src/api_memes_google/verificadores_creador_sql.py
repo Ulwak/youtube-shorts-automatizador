@@ -30,10 +30,9 @@ def verificar_nombre(nombre_meme):
     existe = guia[0].fetchall()
     desconectar_db(guia[1])
 
-
     if existe:
-        return True  
-    return False
+        return False
+    return True
 
 def verificar_phash(hash_meme):
     guia = conectar_db()
@@ -42,11 +41,11 @@ def verificar_phash(hash_meme):
     desconectar_db(guia[1])
 
     if existe:
-        return True
-    return False
+        return False
+    return True
 
-def registrar(categoria, nombre_meme, hash_meme):
+def registrar(categoria, nombre_meme, hash_meme, tiempo):
     guia = conectar_db()
-    guia[0].execute("INSERT INTO Memes (Categoria, Nombre, Phash) VALUES (?, ?, ?)", (categoria, nombre_meme, hash_meme,))
+    guia[0].execute("INSERT INTO Memes (Categoria, Nombre, Phash, Fecha) VALUES (?, ?, ?, ?)", (categoria, nombre_meme, hash_meme, tiempo))
     guia[1].commit()
     desconectar_db(guia[1])

@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS Memes (
     Categoria TEXT NOT NULL,
     Nombre TEXT NOT NULL,
     Phash TEXT NOT NULL,
-    Fecha INTEGER NOT NULL
+    Fecha TEXT NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS nombres_memes ON Memes(Nombre);
