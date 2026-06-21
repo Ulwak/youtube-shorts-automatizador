@@ -12,7 +12,11 @@ def verificar_y_seleccionar_archivos(ruta):
         usados = [n for n in ubicacion.iterdir() if n.is_file() and not n.name.startswith('.')]
         for usado in usados:
             usado.rename(Path(ruta) / "disponibles" / usado.name)
-    return verificar_y_seleccionar_archivos(ruta)
+        archivo_2 = [n for n in archivo.iterdir() if n.is_file() and not n.name.startswith('.')]
+        if len(archivo_2) == 0:
+            print(f"No quedan archivos en {ruta.name}, tanto la carpeta de disponibles como usados se encuentra vacia.")
+            raise SystemExit("Rellene la carpeta con minimo un archivo.")
+        return random.choice(archivo_2)
 
 #Esta funcion mueve los archivos utilizando la ruta y su nombre para organizacion y futura reutilizacion
 def mover_archivo(ruta, archivo):
@@ -25,34 +29,39 @@ def seleccionar_categoria():
     return random.choice(carpeta)
 
 #Encargada de poner los memes en el lugar de "usados" para evitar repetirlos y a futuro reutilizarlos
-def mover_memes_a_usados(memes):
+def mover_memes_a_usados(memes, ruta_raiz):
     for meme in memes:
         categoria = meme.parent.name
-        meme.rename(Path(__file__).parent.parent.parent / "memes" / "usados" / categoria / meme.name)
+        meme.rename(ruta_raiz / "memes" / "usados" / categoria / meme.name)
 
 #Se encarga de seleccionar los memes.En caso de que no haya memes en la carpeta de "disponibles" mueve los memes de "usados" a "disponibles" para seguir reutilizandolos
-def seleccionar_y_verificar_memes(carpeta):
-    try:
+def seleccionar_y_verificar_memes(carpeta, ruta_raiz):
         memes = [n for n in carpeta.iterdir() if n.is_file() and not n.name.startswith('.')]
-        return random.sample(memes, 2)
-    except (ValueError, IndexError):
-        memes_usados = Path(__file__).parent.parent.parent / "memes" / "usados" / carpeta.name
-        usados = [n for n in memes_usados.iterdir() if n.is_file() and not n.name.startswith('.')]
-        for usado in usados:
-            usado.rename(Path(__file__).parent.parent.parent / "memes" / "disponibles" / carpeta.name / usado.name)
-    return seleccionar_y_verificar_memes(carpeta)
+        if len(memes) >= 2:
+            return random.sample(memes, 2)
+        else:
+            memes_usados = ruta_raiz / "memes" / "usados" / carpeta.name
+            usados = [n for n in memes_usados.iterdir() if n.is_file() and not n.name.startswith('.')]
+            for usado in usados:
+                usado.rename(Path(__file__).parent.parent.parent / "memes" / "disponibles" / carpeta.name / usado.name)
+            memes = [n for n in carpeta.iterdir() if n.is_file() and not n.name.startswith('.')]
+            if len(memes) == 0 or len(memes) == 1:
+                print(f"No quedan archivos en {carpeta.name}, tanto la carpeta de disponibles como usados se encuentra vacia.")
+                raise SystemExit("Rellene la carpeta con minimo 2 memes.")
+            return random.sample(memes, 2)
 
 #Funcion principal encargada de ejecutar todo y otorgarle los archivos al script ensamblador.py
 def seleccionador_archivos():
-    ruta_musica = Path(__file__).parent.parent.parent / "musica"
-    ruta_fondo = Path(__file__).parent.parent.parent / "fondos"
-    ruta_like = Path(__file__).parent.parent.parent / "likes"
-    ruta_comentarios = Path(__file__).parent.parent.parent / "comentarios"
+    ruta_raiz = Path(__file__).parent.parent.parent
+    archivos = ["musica", "fondos", "likes", "comentarios"]
+    rutas = []
+    elementos = []
+    for elemento in archivos:
+        ruta_elemento = ruta_raiz / elemento
+        archivo = verificar_y_seleccionar_archivos(ruta_elemento)
+        rutas.append(ruta_elemento)
+        elementos.append(archivo)
     carpeta = seleccionar_categoria()
-    fondo = verificar_y_seleccionar_archivos(ruta_fondo)
-    like = verificar_y_seleccionar_archivos(ruta_like)
-    musica = verificar_y_seleccionar_archivos(ruta_musica)
-    comentarios = verificar_y_seleccionar_archivos(ruta_comentarios)
-    memes = seleccionar_y_verificar_memes(carpeta)
+    memes = seleccionar_y_verificar_memes(carpeta, ruta_raiz)
 
-    return memes, fondo, like, musica, comentarios, ruta_musica, ruta_fondo, ruta_like, ruta_comentarios, carpeta
+    return memes, elementos, rutas, carpeta, ruta_raiz

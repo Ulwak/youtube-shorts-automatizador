@@ -3,7 +3,6 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from pathlib import Path
-import os
 import json
 import random
 from datetime import datetime
@@ -13,14 +12,16 @@ fecha_hoy = datetime.utcnow().strftime('%Y-%m-%dT00:00:00Z')
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 
 def autenticacion():
-    token = os.path.exists("token.json")
-    if token:
-        credenciales = Credentials.from_authorized_user_file("token.json", SCOPES)
+    token_ruta = Path(__file__).parent / "token.json"
+    credenciales_ruta = Path(__file__).parent / "credenciales.json"
+    token_existe = token_ruta.exists()
+    if token_existe:
+        credenciales = Credentials.from_authorized_user_file(str(token_ruta), SCOPES)
     else:
-        flow = InstalledAppFlow.from_client_secrets_file("credenciales.json", SCOPES)
+        flow = InstalledAppFlow.from_client_secrets_file(credenciales_ruta, SCOPES)
         credenciales = flow.run_local_server(port=0)
-        with open("token.json", "w") as token:
-            token.write(credenciales.to_json())
+        with open(token_ruta, "w") as token_archivo:
+            token_archivo.write(credenciales.to_json())
     return credenciales
 
 def subir_short(ruta_short, categoria):
@@ -51,7 +52,7 @@ def subir_short(ruta_short, categoria):
                 "privacyStatus": "private"
             },
             "recordingDetails": {
-                "localDescription": "Argentina",
+                "locationDescription": "Argentina",
                 "recordingDate": fecha_hoy
             }
         }

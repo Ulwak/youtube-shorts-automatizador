@@ -218,7 +218,8 @@ __marimo__/
 .streamlit/secrets.toml
 
 memes/**
-!memes/**/.gitkeep
+!memes/**/
+!memes/**/*.gitkeep
 fondos/**
 !fondos/**/.gitkeep
 musica/**
@@ -231,11 +232,19 @@ output/**
 !output/**/.gitkeep
 fuentes/**
 !fuentes/**/.gitkeep
-metadata/**
 !metadata/**/.gitkeep
 animaciones/**
 !animaciones/**/.gitkeep
 credenciales.json
 token.json
 
-*.db
+
+**/credenciales.json
+**/token.json
+
+database/*.db
+database/*.db-journal
+database/*.db-wal
+
+
+*.mp4

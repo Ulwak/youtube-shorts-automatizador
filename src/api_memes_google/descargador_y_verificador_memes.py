@@ -4,6 +4,7 @@ from PIL import Image
 from api_memes_google.verificadores_creador_sql import verificar_nombre, verificar_phash, registrar
 from api_memes_google.verificador_categoria_google import llamada_api
 import base64
+import random
 import time
 import datetime
 import requests
@@ -12,11 +13,14 @@ import imagehash
 
 def obtener_urls(shorts_a_crear):
     lista_url = []
+    lista_subreddits = ["MemesEnEspanol", "yo_elvr", "MemesESP", "MAAU", "PerrosArgentinos", "futbol", "BuenosMemesEsp", "MomazosEnEspanol" ]
+    sub_reddit = random.choice(lista_subreddits)
     cantidad_memes = shorts_a_crear * 2
+    print(f"Sub-reddit elegido: {sub_reddit}")
     if cantidad_memes < 50:
-        respuesta = requests.get(f"https://meme-api.com/gimme/MemesEnEspanol/{cantidad_memes}")
+        respuesta = requests.get(f"https://meme-api.com/gimme/{sub_reddit}/{cantidad_memes}")
     else:
-        respuesta = requests.get("https://meme-api.com/gimme/MemesEnEspanol/50")
+        respuesta = requests.get(f"https://meme-api.com/gimme/{sub_reddit}/50")
     diccionario = respuesta.json()
     memes = diccionario["memes"]
     for meme in memes:
@@ -68,17 +72,20 @@ def descargador_verificador(shorts_a_crear):
             if extension in[".png", "jpeg", ".jpg"]:
                 lista_url_limpia.append(meme)
     
-        memes_enviados_api = 0
-
         for meme in lista_url_limpia:
             nombre_meme = obtener_nombre_meme(meme)
             existe = verificar_nombre(nombre_meme)
             if existe:
-                phash_bytes64 = calculador_Phash(meme)
+                try:
+                    phash_bytes64 = calculador_Phash(meme)
+                except Exception as error:
+                    print(f"Omitiendo archivo por corrupcion o formato invalido (Error: {error})")
+                    continue
                 existe = verificar_phash(phash_bytes64[0])
                 if existe:
                     extension = meme[-4:]
-                    categoria = llamada_api(extension, phash_bytes64[1]) 
+                    categorias = list(stock_memes.keys())
+                    categoria = llamada_api(extension, phash_bytes64[1], categorias) 
                     if categoria != "descartado":
                         try:
                             fecha = datetime.date.today()
@@ -86,14 +93,15 @@ def descargador_verificador(shorts_a_crear):
                             guardar_imagen(categoria, nombre_meme, phash_bytes64[2])
                             stock_memes[categoria] = stock_memes[categoria] + 1
                             registrar(categoria, nombre_meme, phash_bytes64[0], fecha)
-                            memes_enviados_api = memes_enviados_api + 1
                             print("Meme guardado con exito")
-                        except:
-                            print("Error al guardar")
-                    memes_enviados_api = memes_enviados_api + 1
-                    if memes_enviados_api == 15:
-                            print("Esperando 15 segundos para no saturar a la API de google")
-                            time.sleep(15)
-                            print("Espera terminada, reanudando")
-                            memes_enviados_api = 0
-            
+                            print(categoria)
+                        except Exception as Error:
+                            print(f"Error '{Error}' al guardar")
+                    else:
+                        print("Descartado")
+                else:
+                    print("El Phash ya existe en la base de datos")
+            else:
+                print("El nombre del meme ya existe en la base de datos")
+            print("Esperando 2 segundos para no saturar a la API")
+            time.sleep(2)
