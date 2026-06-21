@@ -13,7 +13,7 @@ import imagehash
 
 def obtener_urls(shorts_a_crear):
     lista_url = []
-    lista_subreddits = ["MemesEnEspanol", "yo_elvr", "MemesESP", "MAAU", "PerrosArgentinos", "futbol", "BuenosMemesEsp", "MomazosEnEspanol" ]
+    lista_subreddits = ["MemesEnEspanol", "yo_elvr", "MemesESP", "MAAU", "futbol", "BuenosMemesEsp", "MomazosEnEspanol" ]
     sub_reddit = random.choice(lista_subreddits)
     cantidad_memes = shorts_a_crear * 2
     print(f"Sub-reddit elegido: {sub_reddit}")

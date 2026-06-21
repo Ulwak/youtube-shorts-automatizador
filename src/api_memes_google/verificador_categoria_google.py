@@ -92,5 +92,3 @@ def obtener_a_que_pertenece(extension, bytes_base64, categorias):
 def llamada_api(extension, bytes_base64, categorias):
     categoria = obtener_a_que_pertenece(extension, bytes_base64, categorias)
     return categoria
-
-
