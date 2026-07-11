@@ -1,5 +1,4 @@
 from pathlib import Path
-from bs4 import BeautifulSoup
 from PIL import Image
 from api_memes_google.verificadores_creador_sql import verificar_nombre, verificar_phash, registrar
 from api_memes_google.verificador_categoria_google import llamada_api
@@ -13,7 +12,7 @@ import imagehash
 
 def obtener_urls(shorts_a_crear):
     lista_url = []
-    lista_subreddits = ["MemesEnEspanol", "yo_elvr", "MemesESP", "MAAU", "PerrosArgentinos", "futbol", "BuenosMemesEsp", "MomazosEnEspanol" ]
+    lista_subreddits = ["MemesEnEspanol", "yo_elvr", "MemesESP", "MAAU", "futbol", "BuenosMemesEsp", "MomazosEnEspanol" ]
     sub_reddit = random.choice(lista_subreddits)
     cantidad_memes = shorts_a_crear * 2
     print(f"Sub-reddit elegido: {sub_reddit}")
@@ -50,7 +49,6 @@ def guardar_imagen(categoria, nombre_meme, imagen):
     imagen.seek(0)
     with open(ruta_meme, "wb") as meme:
         meme.write(imagen.read())
-    return
 
 def obtener_memes_ya_almacenados():
     ruta_carpetas_memes = Path(__file__).parent.parent.parent / "memes" / "disponibles"
@@ -68,8 +66,7 @@ def descargador_verificador(shorts_a_crear):
         lista_url = obtener_urls(shorts_a_crear)
         lista_url_limpia = []
         for meme in lista_url:
-            extension = meme[-4:]
-            if extension in[".png", "jpeg", ".jpg"]:
+            if meme[-4:] in[".png", "jpeg", ".jpg"]:
                 lista_url_limpia.append(meme)
     
         for meme in lista_url_limpia:
@@ -77,22 +74,22 @@ def descargador_verificador(shorts_a_crear):
             existe = verificar_nombre(nombre_meme)
             if existe:
                 try:
-                    phash_bytes64 = calculador_Phash(meme)
+                    phash, bytes_base64, imagen = calculador_Phash(meme)
                 except Exception as error:
                     print(f"Omitiendo archivo por corrupcion o formato invalido (Error: {error})")
                     continue
-                existe = verificar_phash(phash_bytes64[0])
+                existe = verificar_phash(phash)
                 if existe:
                     extension = meme[-4:]
                     categorias = list(stock_memes.keys())
-                    categoria = llamada_api(extension, phash_bytes64[1], categorias) 
+                    categoria = llamada_api(extension, bytes_base64, categorias) 
                     if categoria != "descartado":
                         try:
                             fecha = datetime.date.today()
                             fecha = fecha.isoformat()
-                            guardar_imagen(categoria, nombre_meme, phash_bytes64[2])
+                            guardar_imagen(categoria, nombre_meme, imagen)
                             stock_memes[categoria] = stock_memes[categoria] + 1
-                            registrar(categoria, nombre_meme, phash_bytes64[0], fecha)
+                            registrar(categoria, nombre_meme, phash, fecha)
                             print("Meme guardado con exito")
                             print(categoria)
                         except Exception as Error:

@@ -48,14 +48,18 @@ def crear_y_realizar_peticion(extension, bytes_base64, categorias):
     return respuesta
 
 def obtener_a_que_pertenece(extension, bytes_base64, categorias):
-    
+    intentos = 0
     while True:
         try:
             respuesta = crear_y_realizar_peticion(extension, bytes_base64, categorias)
         except:
             respuesta = None
+        if intentos == 5:
+            print("Fallo de red, pasando al siguiente meme")
+            return "descartado"
         if respuesta is None:
             print(f"Reintentando petición de red")
+            intentos = intentos + 1
             time.sleep(5)
             continue
         if respuesta.status_code != 200:
@@ -76,6 +80,7 @@ def obtener_a_que_pertenece(extension, bytes_base64, categorias):
                 print("Error de conexion")
                 return "descartado"
         else:
+            intentos = 0
             gemini_respuesta = respuesta.json()
             categoria = gemini_respuesta["candidates"][0]["content"]["parts"][0]["text"]
             categoria = categoria.strip()
@@ -92,5 +97,3 @@ def obtener_a_que_pertenece(extension, bytes_base64, categorias):
 def llamada_api(extension, bytes_base64, categorias):
     categoria = obtener_a_que_pertenece(extension, bytes_base64, categorias)
     return categoria
-
-

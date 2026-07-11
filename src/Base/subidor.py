@@ -2,21 +2,30 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
+from google.auth.transport.requests import Request
 from pathlib import Path
 import json
 import random
-from datetime import datetime
-
-fecha_hoy = datetime.utcnow().strftime('%Y-%m-%dT00:00:00Z')
+from datetime import datetime, UTC
 
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 
 def autenticacion():
     token_ruta = Path(__file__).parent / "token.json"
     credenciales_ruta = Path(__file__).parent / "credenciales.json"
-    token_existe = token_ruta.exists()
-    if token_existe:
+    if token_ruta.exists():
         credenciales = Credentials.from_authorized_user_file(str(token_ruta), SCOPES)
+        if credenciales.expired:
+            if not credenciales.refresh_token:
+                token_ruta.unlink()
+                return autenticacion() 
+            try:
+                credenciales.refresh(Request())
+            except Exception:
+                token_ruta.unlink()
+                return autenticacion()
+            with open(token_ruta, "w") as token_archivo:
+                token_archivo.write(credenciales.to_json())
     else:
         flow = InstalledAppFlow.from_client_secrets_file(credenciales_ruta, SCOPES)
         credenciales = flow.run_local_server(port=0)
@@ -38,6 +47,7 @@ def subir_short(ruta_short, categoria):
         titulo = random.choice(datos["titulos"])
         descripcion = datos["descripcion"][0]
         hashtags = datos["hashtags"][0].split()
+        fecha_hoy = datetime.now(UTC).strftime('%Y-%m-%dT00:00:00Z')
 
         cuerpo = {
             "snippet": {

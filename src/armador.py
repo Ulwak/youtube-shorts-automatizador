@@ -3,7 +3,6 @@ from Base.ensamblador import ensamblador_short
 from api_memes_google.descargador_y_verificador_memes import descargador_verificador, obtener_memes_ya_almacenados
 from api_memes_google.verificadores_creador_sql import iniciar_db
 from Base.subidor import subir_short
-from pathlib import Path
 
 def main():
     iniciar_db()
