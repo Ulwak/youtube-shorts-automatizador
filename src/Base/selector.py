@@ -1,5 +1,9 @@
 import random
+import logging
 from pathlib import Path
+
+log_ejecucion = logging.getLogger("ejecucion")
+log_selector = logging.getLogger("selector")
 
 #Esta funcion es reutilizable y permite mediante una ruta ya asignada determinar si hay archivos en la misma o en caso contrario reponerlos.
 def verificar_y_seleccionar_archivos(ruta):
@@ -52,12 +56,16 @@ def seleccionar_y_verificar_memes(carpeta, ruta_raiz):
 
 #Funcion principal encargada de ejecutar todo y otorgarle los archivos al script ensamblador.py
 def seleccionador_archivos():
+    
     ruta_raiz = Path(__file__).parent.parent.parent
     archivos = ["musica", "fondos", "likes", "comentarios"]
     rutas = []
     elementos = []
     for elemento in archivos:
         ruta_elemento = ruta_raiz / elemento
+        (ruta_elemento / "disponibles").mkdir(parents=True, exist_ok=True)
+        (ruta_elemento / "usados").mkdir(parents=True, exist_ok=True)
+
         archivo = verificar_y_seleccionar_archivos(ruta_elemento)
         rutas.append(ruta_elemento)
         elementos.append(archivo)

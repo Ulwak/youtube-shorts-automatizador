@@ -4,20 +4,24 @@ import unicodedata
 import time
 import re
 from dotenv import load_dotenv
+import logging
+
+log_gemini = logging.getLogger("gemini")
+log_red = logging.getLogger("red")
 
 load_dotenv()
 gemini_clave = os.getenv("GEMINI")
+url_gemini = (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key={gemini_clave}")
 
-def crear_y_realizar_peticion(extension, bytes_base64, categorias):
+def crear_y_realizar_peticion(url_gemini, extension, bytes_base64, categorias):
     categorias_cadena = ", ".join(n for n in categorias)
     if extension != "jpeg":
         extension = extension[-3:]
-    url_gemini = (f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key={gemini_clave}")
     cabecera = {
         "Content-Type" : "application/json"
     }
     #El prompt ubicado en "systemInstruction": "parts": "text" fue creado utilizando inteligencia artificial para hacer que la IA de
-    #gemma unicamente devuelva una palabra y utilizarla para categorizar
+    #gemini unicamente devuelva una palabra y utilizarla para categorizar
     cuerpo = {
         "systemInstruction": {
             "parts": [
@@ -47,12 +51,13 @@ def crear_y_realizar_peticion(extension, bytes_base64, categorias):
     respuesta = requests.post(url_gemini, headers=cabecera, json=cuerpo, timeout=15)
     return respuesta
 
-def obtener_a_que_pertenece(extension, bytes_base64, categorias):
+def obtener_a_que_pertenece(url_gemini, extension, bytes_base64, categorias):
     intentos = 0
     while True:
         try:
-            respuesta = crear_y_realizar_peticion(extension, bytes_base64, categorias)
-        except:
+            respuesta = crear_y_realizar_peticion(url_gemini, extension, bytes_base64, categorias)
+        except Exception as error_red:
+            log_red.info(f"Error de red: {error_red}")
             respuesta = None
         if intentos == 5:
             print("Fallo de red, pasando al siguiente meme")
@@ -77,6 +82,7 @@ def obtener_a_que_pertenece(extension, bytes_base64, categorias):
                     time.sleep(20)
                     continue
             else:
+                log_gemini.info(f"Respuesta gemini: {respuesta}")
                 print("Error de conexion")
                 return "descartado"
         else:
@@ -91,9 +97,8 @@ def obtener_a_que_pertenece(extension, bytes_base64, categorias):
                 carpeta_usuario = unicodedata.normalize("NFC", carpeta.strip().lower())
                 if categoria == carpeta_usuario:
                     return carpeta
-            print(categoria)
             return "descartado"
 
 def llamada_api(extension, bytes_base64, categorias):
-    categoria = obtener_a_que_pertenece(extension, bytes_base64, categorias)
+    categoria = obtener_a_que_pertenece(url_gemini ,extension, bytes_base64, categorias)
     return categoria
