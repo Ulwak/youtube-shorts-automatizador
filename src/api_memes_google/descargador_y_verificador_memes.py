@@ -28,7 +28,7 @@ lock_rate_api = threading.Lock()
 
 def obtener_urls(shorts_a_crear):
     lista_url = []
-    lista_subreddits = ["MemesEnEspanol", "yo_elvr", "MemesESP", "MAAU", "futbol", "BuenosMemesEsp", "MomazosEnEspanol" ]
+    lista_subreddits = ["MemesEnEspanol", "yo_elvr", "MemesESP", "MAAU", "BuenosMemesEsp", "MomazosEnEspanol" ]
     sub_reddit = random.choice(lista_subreddits)
     cantidad_memes = shorts_a_crear * 2
     print(f"Sub-reddit elegido: {sub_reddit}")
@@ -146,58 +146,64 @@ def esperar_a_gemini():
 
 
 
-def validar_memes(url, subreddit, stock_memes, lock, nombres_en_proceso, phash_en_proceso, lock_rate_api):
-    nombre_meme = obtener_nombre_meme(url)
-    log_descarga_memes.info(f"[{subreddit}] Procesando meme: {nombre_meme}")
-    meme_no_valido = (False, None, None, None, None)
-    with lock:
-        if nombre_meme in nombres_en_proceso:
-            return meme_no_valido
-        existe = verificar_nombre(nombre_meme)
-        nombres_en_proceso.add(nombre_meme)
-    if existe:
-        try:
-            phash, bytes_base64, imagen = calculador_Phash(url)
-            log_descarga_memes.info(f"Calculado el Phash del meme {nombre_meme}")
-        except Exception as error_phash:
-            print(f"Omitiendo archivo {nombre_meme} por corrupcion o formato invalido")
-            log_descarga_memes.exception(f"Ocurrio el siguiente error con el meme {nombre_meme}: {error_phash}")
-            return meme_no_valido
+def validar_memes(url, subreddit, stock_memes, lock, nombres_en_proceso, phash_en_proceso):
+    try:
+        nombre_meme = obtener_nombre_meme(url)
+        log_descarga_memes.info(f"[{subreddit}] Procesando meme: {nombre_meme}")
+        meme_no_valido = (False, None, None, None, None)
         with lock:
-            if phash in phash_en_proceso:
+            if nombre_meme in nombres_en_proceso:
                 return meme_no_valido
-            existe = verificar_phash(phash)
-            phash_en_proceso.add(phash)
+            existe = verificar_nombre(nombre_meme)
+            nombre_meme_procesado = nombre_meme
+            nombres_en_proceso.add(nombre_meme_procesado)
         if existe:
-            extension = url[-4:]
+            try:
+                phash, bytes_base64, imagen = calculador_Phash(url)
+                log_descarga_memes.info(f"Calculado el Phash del meme {nombre_meme}")
+            except Exception as error_phash:
+                print(f"Omitiendo archivo {nombre_meme} por corrupcion o formato invalido")
+                log_descarga_memes.exception(f"Ocurrio el siguiente error con el meme {nombre_meme}: {error_phash}")
+                return meme_no_valido
             with lock:
-                categorias = list(stock_memes.keys())
-            log_descarga_memes.info(f"Listadas las categorias a las que puede corresponder la imagen: {categorias}")
-            esperar_a_gemini()
-            categoria = llamada_api(extension, bytes_base64, categorias)
-            log_descarga_memes.info(f"Realizada la llamada a Gemini para clasificar el meme {nombre_meme}")
-            if categoria != "descartado":
-                    meme_valido = True
-                    log_gemini.info(f"Meme {nombre_meme} clasificado como {categoria} por Gemini")
+                if phash in phash_en_proceso:
+                    return meme_no_valido
+                existe = verificar_phash(phash)
+                phash_procesado = phash
+                phash_en_proceso.add(phash_procesado)
+            if existe:
+                extension = url[-4:]
+                with lock:
+                    categorias = list(stock_memes.keys())
+                log_descarga_memes.info(f"Listadas las categorias a las que puede corresponder la imagen: {categorias}")
+                esperar_a_gemini()
+                categoria = llamada_api(extension, bytes_base64, categorias)
+                log_descarga_memes.info(f"Realizada la llamada a Gemini para clasificar el meme {nombre_meme}")
+                if categoria != "descartado":
+                        meme_valido = True
+                        log_gemini.info(f"Meme {nombre_meme} clasificado como {categoria} por Gemini")
+                else:
+                    print("Descartado")
+                    log_descarga_memes.info(f"Meme {nombre_meme} descartado")
+                    log_gemini.info(f"Meme {nombre_meme} descartado")
+                    meme_valido = False
             else:
-                print("Descartado")
-                log_descarga_memes.info(f"Meme {nombre_meme} descartado")
-                log_gemini.info(f"Meme {nombre_meme} descartado")
-                meme_valido = False
+                print(f"El Phash del meme {nombre_meme} ya existe en la base de datos")
+                log_descarga_memes.info(f"{nombre_meme} ya existe en la base de datos (Razon: Phash)")
+                return meme_no_valido
         else:
-            print(f"El Phash del meme {nombre_meme} ya existe en la base de datos")
-            log_descarga_memes.info(f"{nombre_meme} ya existe en la base de datos (Razon: Phash)")
+            print(f"{nombre_meme} ya existe en la base de datos")
+            log_descarga_memes.info(f"{nombre_meme} ya existe en la base de datos (Razon: Nombre)")
             return meme_no_valido
-    else:
-        print(f"{nombre_meme} ya existe en la base de datos")
-        log_descarga_memes.info(f"{nombre_meme} ya existe en la base de datos (Razon: Nombre)")
+        if meme_valido:
+            return meme_valido, categoria, nombre_meme, imagen, phash
         return meme_no_valido
-    if meme_valido:
-        return meme_valido, categoria, nombre_meme, imagen, phash
-    return meme_no_valido
-      
-
-
+    finally:
+        with lock:
+            if "nombre_meme_procesado" in locals():
+                nombres_en_proceso.discard(nombre_meme_procesado)
+                if "phash_procesado" in locals():
+                    phash_en_proceso.discard(phash_procesado)
 
 def descargador_verificador(shorts_a_crear):
     stock_memes = obtener_memes_ya_almacenados()
@@ -209,7 +215,7 @@ def descargador_verificador(shorts_a_crear):
         log_ejecucion.info(f"Obtenidas las {cantidad_url_sin_filtrar} URLs de los memes")
         log_ejecucion.info(f"Filtradas las URLs que contenian formatos de imagenes no compatibles. URLs validas: {cantidad_url_limpia}")
         with ThreadPoolExecutor(max_workers=8) as trabajador:
-            tareas = [trabajador.submit(validar_memes, i, subreddit, stock_memes, lock_datos, nombres_en_proceso, phash_en_proceso, lock_rate_api) for i in lista_url_limpia]
+            tareas = [trabajador.submit(validar_memes, i, subreddit, stock_memes, lock_datos, nombres_en_proceso, phash_en_proceso) for i in lista_url_limpia]
             for tarea in as_completed(tareas):
                 meme_valido, categoria, nombre_meme, imagen, phash = tarea.result()
                 if meme_valido:

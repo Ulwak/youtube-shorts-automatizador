@@ -3,8 +3,16 @@ CREATE TABLE IF NOT EXISTS Memes (
     Categoria TEXT NOT NULL,
     Nombre TEXT NOT NULL,
     Phash TEXT NOT NULL,
-    Fecha TEXT NOT NULL
+    Fecha TEXT NOT NULL,
+    Disponibilidad TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Musica (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Nombre TEXT NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS nombres_memes ON Memes(Nombre);
 CREATE INDEX IF NOT EXISTS Phash_memes ON Memes (Phash);
+CREATE INDEX IF NOT EXISTS disponibilidad ON Memes (Disponibilidad);
+CREATE INDEX IF NOT EXISTS Nombres_musica ON Musica (Nombre);
