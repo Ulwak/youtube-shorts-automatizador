@@ -8,7 +8,7 @@ TAMAÑO_MEME_SUPERIOR_INFERIOR = (int(ANCHO_DE_VIDEO * 0.85), int(ALTO_DE_VIDEO 
 TAMAÑO_MEMES_CENTRALES = (int(ANCHO_DE_VIDEO * 0.42), int(ALTO_DE_VIDEO * 0.18))
 MARGEN_ALTURA = int(ALTO_DE_VIDEO * 0.03)
 
-def size_de_imagenes(memes, fondo, like, musica, comentarios):
+def size_de_imagenes(memes, fondo, like, comentarios):
     imagen_fondo = ImageClip(str(fondo)).with_duration(DURACION_DEL_SHORT)
 
     imagen_memes = [ImageClip(str(i)).with_duration(DURACION_DEL_SHORT) for i in memes]
@@ -101,8 +101,8 @@ def ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica
 
     return ruta_short
 
-def ensamblador_short(memes, fondo, like, musica, comentarios):
-    imagenes, imagen_fondo, imagen_memes = size_de_imagenes(memes, fondo, like, musica, comentarios)
+def ensamblador_short(memes, musica,fondo, like, comentarios):
+    imagenes, imagen_fondo, imagen_memes = size_de_imagenes(memes, fondo, like, comentarios)
 
     texto1, texto2 = textos_short_creacion_ubicacion()
 

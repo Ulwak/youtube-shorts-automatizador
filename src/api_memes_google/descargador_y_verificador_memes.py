@@ -8,7 +8,6 @@ import time
 import threading
 import base64
 import random
-import time
 import datetime
 import requests
 import io
@@ -79,15 +78,16 @@ def obtener_nombre_meme(url):
     return nombre
 
 def guardar_imagen(categoria, nombre_meme, imagen):
-    carpeta_categoria = Path(__file__).parent.parent.parent / "memes" / "disponibles" / categoria
+    carpeta_categoria = Path(__file__).parent.parent.parent / "memes" / categoria
     carpeta_categoria.mkdir(parents=True, exist_ok=True)
     ruta_meme = carpeta_categoria / nombre_meme
     imagen.seek(0)
     with open(ruta_meme, "wb") as meme:
         meme.write(imagen.read())
+    return ruta_meme
 
 def obtener_memes_ya_almacenados():
-    ruta_carpetas_memes = Path(__file__).parent.parent.parent / "memes" / "disponibles"
+    ruta_carpetas_memes = Path(__file__).parent.parent.parent / "memes"
     categorias = [n for n in ruta_carpetas_memes.iterdir() if n.is_dir()]
     stock_memes = {}
     for n in categorias:
@@ -109,9 +109,9 @@ def registrador_memes(categoria, nombre_meme, imagen, phash, stock_memes, lock):
         fecha = datetime.date.today()
         fecha = fecha.isoformat()
         with lock:
-            guardar_imagen(categoria, nombre_meme, imagen)
+            ruta_meme = str(guardar_imagen(categoria, nombre_meme, imagen))
             stock_memes[categoria] = stock_memes[categoria] + 1
-            registrar(categoria, nombre_meme, phash, fecha)
+            registrar(categoria, nombre_meme, phash, ruta_meme, fecha)
         log_baseDatos.info(f"Meme {nombre_meme} registrado en la base de datos")
         print("Meme guardado con exito")
         print(f"Categoria del meme: {categoria}")

@@ -1,9 +1,10 @@
 from time import perf_counter
 tiempo_inicial = perf_counter()
-from Base.selector import seleccionador_archivos, mover_archivo, mover_memes_a_usados
+import datetime
+from Base.selector import seleccionador_archivos
 from Base.ensamblador import ensamblador_short
 from api_memes_google.descargador_y_verificador_memes import descargador_verificador, obtener_memes_ya_almacenados
-from api_memes_google.verificadores_creador_sql import iniciar_db
+from api_memes_google.verificadores_creador_sql import iniciar_db, obtener_memes, obtener_archivos, actualizar_db
 from Base.subidor import subir_short
 from Base.log import crear_logs
 
@@ -40,18 +41,20 @@ def main():
                 exit()
 
     for _ in range(cantidad_shorts):
-        memes, elementos, rutas, carpeta, ruta_raiz = seleccionador_archivos()
+        memes, elementos, carpeta = seleccionador_archivos(obtener_memes, obtener_archivos)
         logs["ejecucion"].info("Se seleccionaron los memes para el short")
-        ruta_short = ensamblador_short(memes, elementos[1], elementos[2], elementos[0], elementos[3])
+        ruta_short = ensamblador_short(memes, elementos[0], elementos[1], elementos[2], elementos[3])
         logs["ejecucion"].info("Se ensamblo el short")
         id_short = subir_short(ruta_short, carpeta.name)
         logs["ejecucion"].info("Se subio el short")
         if id_short is None:
             print("No se movieron los archivos")
         else:
-            for ruta, elemento in zip(rutas, elementos):
-                mover_archivo(ruta, elemento)
-            mover_memes_a_usados(memes, ruta_raiz)
+            fecha = datetime.date.today().isoformat()
+            for elemento in elementos:
+                actualizar_db(elemento.parent.name, str(elemento), fecha)
+            for n in memes:
+                actualizar_db(n.parent.parent.name, str(n), fecha)
             print(f"youtube.com/shorts/{id_short}")
             SHORTS_SUBIDOS = SHORTS_SUBIDOS + 1
             print(f"Shorts ya subidos: {SHORTS_SUBIDOS}")
