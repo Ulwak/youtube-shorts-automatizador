@@ -4,7 +4,7 @@ import datetime
 from Base.selector import seleccionador_archivos
 from Base.ensamblador import ensamblador_short
 from api_memes_google.descargador_y_verificador_memes import descargador_verificador, obtener_memes_ya_almacenados
-from api_memes_google.verificadores_creador_sql import iniciar_db, obtener_memes, obtener_archivos, actualizar_db
+from api_memes_google.verificadores_creador_sql import iniciar_db, obtener_memes, obtener_archivos, actualizar_db, registrar_shorts, obtener_horario
 from Base.subidor import subir_short
 from Base.log import crear_logs
 
@@ -45,7 +45,7 @@ def main():
         logs["ejecucion"].info("Se seleccionaron los memes para el short")
         ruta_short = ensamblador_short(memes, elementos[0], elementos[1], elementos[2], elementos[3])
         logs["ejecucion"].info("Se ensamblo el short")
-        id_short = subir_short(ruta_short, carpeta.name)
+        id_short = subir_short(ruta_short, carpeta.name, registrar_shorts, obtener_horario)
         logs["ejecucion"].info("Se subio el short")
         if id_short is None:
             print("No se movieron los archivos")

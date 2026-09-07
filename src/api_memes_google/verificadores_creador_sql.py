@@ -63,7 +63,19 @@ def obtener_archivos(tipo):
             print(f"Rellene la carpeta de {tipo} con minimo 2 memes.")
             log_db.error(f"Hay menos de 1 imagen en la carpeta de {tipo}. Rellenar para continuar el funcionamiento normal.")
             exit()
-            
+
+def registrar_shorts(id_del_short, nombre, hora_subida, fecha_creacion, categoria):
+    guia = conectar_db()
+    guia[0].execute("INSERT INTO shorts (Short_ID, Nombre, Hora_Subida, Fecha_Creacion, Categoria) VALUES (?, ?, ?, ?, ?)", (id_del_short, nombre, hora_subida, fecha_creacion, categoria,))
+    guia[1].commit()
+    desconectar_db(guia[1])
+
+def obtener_horario():
+    guia = conectar_db()
+    guia[0].execute("SELECT Hora_Subida FROM shorts ORDER BY Hora_Subida DESC LIMIT 1")
+    horario = guia[0].fetchone()
+    desconectar_db(guia[1])
+    return horario
         
 def actualizar_db(tabla, ruta, fecha):
     guia = conectar_db()

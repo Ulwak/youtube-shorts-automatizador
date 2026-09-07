@@ -42,6 +42,15 @@ CREATE TABLE IF NOT EXISTS comentarios (
     Ruta TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS shorts (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Short_ID TEXT NOT NULL UNIQUE,
+    Nombre TEXT NOT NULL,
+    Hora_Subida TEXT NOT NULL,
+    Fecha_Creacion TEXT NOT NULL,
+    Categoria TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS revisiones (
     ID INTEGER PRIMARY KEY AUTOINCREMENT,
     Nombre TEXT NOT NULL UNIQUE,
@@ -69,5 +78,7 @@ CREATE INDEX IF NOT EXISTS Nombres_Likes ON likes (Nombre);
 CREATE INDEX IF NOT EXISTS Estado_Likes ON likes (Estado);
 CREATE INDEX IF NOT EXISTS Rutas_Likes ON likes (Ruta);
 
-CREATE INDEX IF NOT EXISTS Nombres_Revision ON revisiones (Nombre);
+CREATE INDEX IF NOT EXISTS Nombres_Shorts ON shorts (Nombre);
+CREATE INDEX IF NOT EXISTS Hora_Subida_Shorts ON shorts (Hora_Subida);
+
 CREATE INDEX IF NOT EXISTS Fechas_Revision ON revisiones (Fecha_modificacion);
