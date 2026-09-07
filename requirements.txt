@@ -1,0 +1,8 @@
+google_api_python_client==2.196.0
+google_auth_oauthlib==1.4.0
+ImageHash==4.3.2
+moviepy==2.2.1
+Pillow==12.3.0
+protobuf==7.36.1
+python-dotenv==1.2.3
+Requests==2.34.2

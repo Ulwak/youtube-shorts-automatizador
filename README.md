@@ -13,7 +13,7 @@ The explanation is available in both Spanish and English versions.
 7. ¿Qué cosas se pueden cambiar a gusto del usuario?
 8. ¿Cómo configuro un entorno ".venv" para evitar que las librerias se instalen globalmente en mi dispositivo?
 
-1. Un automatizador de shorts es un programa encargado de seleccionar imagenes, fondos, musica y textos para ensamblarlos y publicarlos en un canal de Youtube, Tik-Tok, o Instagram en formato de Short o Reel de manera Automatizada para que el usuario no necesite realizar la edicion y publicacion manualmente. (Ejemplo del automatizador puesto en practica en un canal: "https://www.youtube.com/@Ulwak-0")
+1. Un automatizador de shorts es un programa encargado de seleccionar imagenes, fondos, musica y textos para ensamblarlos y publicarlos en un canal de Youtube, Tik-Tok, o Instagram (En este caso unicamente abarca Youtube) en formato de Short o Reel de manera Automatizada para que el usuario no necesite realizar la edicion y publicacion manualmente. (Ejemplo del automatizador puesto en practica en un canal: "https://www.youtube.com/@Ulwak-0")
 
 2. Estructura de carpetas:
 
@@ -22,17 +22,18 @@ youtube-shorts-automatizador/
 ├── LICENSE #La licencia del repositorio.
 ├── README.md #La explicacion sobre el proyecto y su funcionamiento.
 ├── requirements.txt #Requisitos para utilizar el proyecto en otra PC
+│── .env.example #Archivo .env de ejemplo.
 │
 ├── comentarios/    #Carpeta donde se deben colocar imagenes para generar comentarios.
-│   ├── disponibles/ #Carpeta que almacena las imagenes que generan comentarios que aun no fueron usadas.
-│   └── usados/ #Carpeta que almacena las imagenes que generan comentarios que ya fueron utilizadas.
+│   
+│   
 │
 ├── database/  #Carpeta encargada de almacenar la Base de Datos y el archivo .sql que se encarga de la estructuracion de la misma.
 │   └── registro.sql
 │
 ├── fondos/ #Carpeta encargada de almacenar los fondos para los shorts en formato de imagen.
-│   ├── disponibles/ #Carpeta encargada de almacenar los fondos que aun no se utilizaron
-│   └── usados/ #Carpeta encargada de almacenar los fondos ya utilizados.
+│   
+│   
 │
 ├── fuentes/ #La fuente para el texto del short.
 │   └── Anton/ #Carpeta del tipo de fuente.
@@ -40,19 +41,19 @@ youtube-shorts-automatizador/
 │       └── OFL.txt
 │
 ├── likes/  #Carpeta que almacena las imagenes que piden likes a la persona que vea el short.
-│   ├── disponibles/ #Carpeta que almacena las imagenes para pedir likes que aun no fueron utilizadas
-│   └── usados/ #Carpeta que almacena las imagenes para pedir likes ya utilizadas
+│   
+│   
 │
 ├── memes/ #Carpeta que almacena los memes para los shorts.
-│   ├── disponibles/ #Carpeta que almacena los memes no utilizados aun
-│   └── usados/ #Carpeta que almacena los memes ya utilizados.
+│  
+│  
 │
-├── metadata/ #Carpeta encargada de almacenar a "Metadata.json" el cual es un diccionario con los titulos para cada short, descripciones y hashtags.
+├── metadata/ #Carpeta encargada de almacenar a "metadata.json" el cual es un diccionario con los titulos para cada short, descripciones y hashtags.
 │   └── metadata.json #Archivo encargado de proporcionar los metadatos para la subida del short a youtube.
 │
 ├── musica/ #Carpeta que almacena la musica de fondo de los shorts.
-│   ├── disponibles/ #Carpeta que almacena la musica de fondo de los shorts sin utilizar
-│   └── usados/  #Carpeta que almacena la musica de fondo de los shorts ya utilizados
+│   
+│   
 │
 ├── output/ #Carpeta donde se generara el short al momento de finalizar el programa.
 │   └── .gitkeep
@@ -63,11 +64,11 @@ youtube-shorts-automatizador/
     ├── Base/ #Carpeta que incluye el codigo "Base" o principal del programa para el ensamblaje de videos.
     │   ├── ensamblador.py #Encargado de ensamblar el short con las imagenes/fondos/memes/musica/comentarios/like seleccionados por seleccionador.py
     │   ├── selector.py #Encargado de seleccionar los archivos para que ensamblador.py pueda realizar el ensamblaje del short.
-    │   └── subidor.py #Encargado de subir el short a tu cuenta de youtube en modo privado para que solo tengas que ajustar la hora de publicacion.
+    │   └── subidor.py #Encargado de subir el short a tu cuenta de youtube programado para que se publiquen con intervalos de 6 horas entre ellos.
     │
     └── api_memes_google/ #Codigo encargado de la conexion con la api de memes (Creada por D3vd) para descargar memes y con la api de google para realizarle consultas a Gemini.
         ├── descargador_y_verificador_memes.py #Encargado de traer memes de la api y verificar si ya han sido descargados alguna vez. En caso de que no seran enviados a Gemini para su evaluacion
-        ├── verificador_categoria_google.py #Encargado de verificar a que categoria de las carpetas que tiene el usuario en memes / disponibles corresponde el meme o si debe ser descartado (+18)
+        ├── verificador_categoria_google.py #Encargado de verificar a que categoria de las carpetas que tiene el usuario en "memes" corresponde el meme o si debe ser descartado (+18)
         └── verificadores_creador_sql.py #Encargado de almacenar todas las funciones para la busqueda en la base de datos y los registros en la misma.
 
 3. El automatizador de shorts funciona descargando memes mediante varios workers desde una API publica llamada Meme-API creada por D3vd. De esta manera el programa obtiene los memes y posteriormente los somete a un filtro simple para evitar repetidos. El filtro consiste en tres etapas:
@@ -87,13 +88,13 @@ En caso de que el usuario no tenga conexion a internet se realizara un conteo ra
 
 Finalmente, el programa envia una consulta SQL para extraer la ruta de dos memes de una categoria al azar que no hayan sido utilizados, una musica aleatoria , un fondo aleatorio, una imagen para generar comentarios aleatoria y una imagen para generar likes aleatoria. Posteriormente le pasara estos archivos a ensamblador.py el cual sera el encargado de ajustarlos y ensamblar el short para su posterior subida.
 
-Cuando ensamblador.py termina de armar el short el mismo es pasado a subidor.py el cual se encarga de consultar a la base de datos sobre el horario de subida del ultimo short para determinar a que hora debera programar el short siguiente (tienen 6 horas de diferencias entre ellos). En caso de que en la base de datos no se obtenga ningun registro, obtendra la hora y fecha del dispositivo para posteriormente tomar la decision. Luego de ese proceso se preparan los metadatos que requiere la API de Youtube para la subida del short y finalmente el short es subido al canal del usuario programado para alguno de los siguientes horarios: 5:45am, 11:45am, 17:45pm y 23:45pm. Luego muestra un mensaje en pantalla de que la carga fue exitosa y registra en la base de datos el ID del short, el titulo con el que fue subido, su fecha de creacion y la fecha en la que se hara publico.
+Cuando ensamblador.py termina de armar el short el mismo es pasado a subidor.py el cual se encarga de consultar a la base de datos sobre el horario de subida del ultimo short para determinar a que hora debera programar el short siguiente (tienen 6 horas de diferencias entre ellos). En caso de que en la base de datos no se obtenga ningun registro, obtendra la hora y fecha del dispositivo para posteriormente tomar la decision. Luego de ese proceso se preparan los metadatos que requiere la API de Youtube para la subida del short y finalmente el short es subido al canal del usuario programado para alguno de los siguientes horarios: 05:45, 11:45, 17:45 y 23:45. Luego muestra un mensaje en pantalla de que la carga fue exitosa y registra en la base de datos el ID del short, el titulo con el que fue subido, su fecha de creacion y la fecha en la que se hara publico.
 
 Finalmente armador.py se encarga de actualizar el estado de los memes, imagen para causar comentarios, imagen para pedir likes, la musica y el fondo a usados en la base de datos (Esto alterando la columna estado: 1 = Usado, 0 = Sin usar).
 
-4. Para traer la estructura del proyecto y preparar el entorno usted debera abrir su Visual Studio Code en una carpeta de su preferencia, abrir una terminal y ejecutar "git clone https://github.com/Ulwak/youtube-shorts-automatizador.git". Se le bajara la estructura de carpetas, (En el proximo paso se le explicara que debe rellenar y que cosas debera agregar). Luego debera renombrar el archivo ".env.example" a ".env" (esto para que el programa pueda identificarlo correctamente). Luego puede crear carpetas de categorias de memes aunque si lo hace asegurese de agregar la categoria a los metadatos en "metadatos.json" (ubicado en "metadata". Vease el paso 7.) siguiendo la estructura ya establecida. Finalmente debera realizar "pip install -r requirements.txt" para instalar las librerias necesarias para poder utilizar el proyecto sin que se produzcan errores (se recomienda configurar un entorno .venv de python para evitar instalarlas de manera global en su sistema operativo. Vease el paso 8).
+4. Para traer la estructura del proyecto y preparar el entorno usted debera abrir su Visual Studio Code en una carpeta de su preferencia, abrir una terminal y ejecutar "git clone https://github.com/Ulwak/youtube-shorts-automatizador.git". Se le bajara la estructura de carpetas, (En el proximo paso se le explicara que debe rellenar y que cosas debera agregar). Luego debera renombrar el archivo ".env.example" a ".env" (esto para que el programa pueda identificarlo correctamente). Luego puede crear carpetas de categorias de memes aunque si lo hace asegurese de agregar la categoria a los metadatos en "metadata.json" (ubicado en "metadata". Vease el paso 7.) siguiendo la estructura ya establecida (dentro de memes crear las subcarpetas como esta "varios" y en metadata.json crear el diccionario como esta el diccionario de "varios"). Finalmente debera realizar "pip install -r requirements.txt" para instalar las librerias necesarias para poder utilizar el proyecto sin que se produzcan errores (se recomienda configurar un entorno .venv de python para evitar instalarlas de manera global en su sistema operativo. Vease el paso 8).
 
-5. Para utilizarlo debera ingresar como minimo 1 imagen en comentarios, likes, fondos y una musica en la carpeta musica. Luego debera ingresar a "https://aistudio.google.com/welcome" (Servicio de google desde el cual se deben crear las API KEY necesarias para utilizar Gemini), presionar el boton central que dice "Get started" y luego iniciar sesion. Luego debera dirigirse al apartado que dice "Proyectos" y presionar el boton de "Crear nuevo proyecto". Debera completar con un nombre (puede colocarle "Automatizador-Shorts" por ejemplo) y luego debera colocar un nombre para la clave que google le dara. Luego vera en el panel su proyecto con una seccion que dice "Claves", al presionar alli entrara a otro panel en el cual podra ver en la primer columna una serie de letras y numeros aleatorios NO DEBE COMPARTIRLOS CON NADIE O CON INTERNET BAJO NINGUN CONCEPTO SI QUIERE MANTER SU SEGURIDAD (esto debido a que las API KEY permiten que usted se identifique ante google para utilizar por ejemplo, un servicio de IA). Luego debera copiar todas esa letras dentro del archivo ".env" en el campo de "GEMINI" dentro de las "". Finalmente debera ir a "console.cloud.google.com/cloud-hub" crear un proyecto y en la seccion de IAM Administracion --> IAM --> otorgar acceso y ahi debera rellenar los campos: En entidad colocara el correo electronico del canal donde usted quiera subir los shorts, en rol colocara propietario. Luego debera abrir Visual Studio code y debera ejecutar el programa desde la carpeta src (...youtube-shorts-automatizador/src python actualizador_db.py) la cual actualizara los datos de la DB (Por favor no lo ejecutes 2 veces o podrias repetir datos) y luego cuando finalize deberas ejecutar "python armador.py" e ingresar la cantidad de shorts que usted necesita. Se recomienda producir tandas de 5 a 10 shorts por dia y para tandas de mas grandes (50 por ejemplo) se recomienda reutilizar los memes que fue almacenando con el tiempo. Finalmente cuando llegue el momento de la subida el programa le solicitara iniciar sesion en una pestaña de su navegador mediante los servicios de google, le advertiran de que la aplicacion no esta verificada aunque esto es a raiz de que cada persona que quiera usar el codigo debera crear un proyecto nuevo. No hay razon de preocupacion pues las unicas conexiones que realiza el programa con el exterior son para descargar los memes. Luego de que inicie sesion sus tokens (No debe compartirlos tampoco) se guardaran en ...Youtube-Shorts-Automatizador/src/base/token.json y siempre y cuando se pueda el programa los renovara automaticamente. Finalmente puede esperar a que se realize la carga del short y utilizar o modificar el programa si lo requiere o prefiere.
+5. Para utilizarlo debera ingresar como minimo 1 imagen en comentarios, likes, fondos y una musica en la carpeta musica. Luego debera ingresar a "https://aistudio.google.com/welcome" (Servicio de google desde el cual se deben crear las API KEY necesarias para utilizar Gemini), presionar el boton central que dice "Get started" y luego iniciar sesion. Luego debera dirigirse al apartado que dice "Proyectos" y presionar el boton de "Crear nuevo proyecto". Debera completar con un nombre (puede colocarle "Automatizador-Shorts" por ejemplo) y luego debera colocar un nombre para la clave que google le dara. Luego vera en el panel su proyecto con una seccion que dice "Claves", al presionar alli entrara a otro panel en el cual podra ver en la primer columna una serie de letras y numeros aleatorios NO DEBE COMPARTIRLOS CON NADIE O CON INTERNET BAJO NINGUN CONCEPTO SI QUIERE MANTER SU SEGURIDAD (esto debido a que las API KEY permiten que usted se identifique ante google para utilizar por ejemplo, un servicio de IA). Luego debera copiar todas esa letras dentro del archivo ".env" en el campo de "GEMINI" dentro de las "". Finalmente debera ir a "console.cloud.google.com/cloud-hub" crear un proyecto y en la seccion de IAM Administracion --> IAM --> otorgar acceso y ahi debera rellenar los campos: En entidad colocara el correo electronico del canal donde usted quiera subir los shorts, en rol colocara propietario. Luego debera abrir Visual Studio code y debera ejecutar el programa desde la carpeta src (...youtube-shorts-automatizador/src python actualizador_db.py) la cual actualizara los datos de la DB (Por favor no lo ejecutes 2 veces o podrias repetir datos) y luego cuando finalize deberas ejecutar "python armador.py" e ingresar la cantidad de shorts que usted necesita. Se recomienda producir tandas de 5 a 10 shorts por dia y para tandas de mas grandes (50 por ejemplo) se recomienda reutilizar los memes que fue almacenando con el tiempo. Finalmente cuando llegue el momento de la subida el programa le solicitara iniciar sesion en una pestaña de su navegador mediante los servicios de google, le advertiran de que la aplicacion no esta verificada aunque esto es a raiz de que cada persona que quiera usar el codigo debera crear un proyecto nuevo. No hay razon de preocupacion pues las unicas conexiones que realiza el programa con el exterior son para descargar los memes, verificar los memes con gemini y subir el short a youtube. Luego de que inicie sesion sus tokens (No debe compartirlos tampoco) se guardaran en ...Youtube-Shorts-Automatizador/src/Base/token.json y siempre y cuando se pueda el programa los renovara automaticamente. Finalmente puede esperar a que se realize la carga del short y utilizar o modificar el programa si lo requiere o prefiere.
 
 6. Primero luego de ingresar todos los archivos en comentarios, musica, fondos y likes debera ejecutar una UNICA VEZ (esto debido a que aun esta en proceso y estamos mejorandolo ejecutarlo dos veces duplicaria las entradas en la base de datos) "actualizador_db.py" para que la base de datos detecte esos archivos que usted ya relleno. Finalmente debera ejecutar "python armador.py" desde su terminal estando en la carpeta src/ del su proyecto (...youtube-shorts-automatizador/src), luego indicar la cantidad de shorts y en caso de que sea necesario volver a iniciar sesion con la cuenta en la que se subiran los videos. El resto del proceso es automatico.
 
