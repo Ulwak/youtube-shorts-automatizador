@@ -27,6 +27,13 @@ def iniciar_db():
     guia[1].commit()
     desconectar_db(guia[1])
 
+def actualizador_datos_db_primera_vez(tabla, nombre, ruta):
+    guia = conectar_db()
+    guia[0].execute(f"INSERT INTO {tabla} (Nombre, Ruta) VALUES (?, ?)", (nombre, ruta,))
+    guia[1].commit()
+    print(f"Actualizado {nombre} en {tabla}")
+    desconectar_db(guia[1])
+
 def obtener_memes(categoria):
     guia = conectar_db()
     intentos = 0
