@@ -27,12 +27,38 @@ def iniciar_db():
     guia[1].commit()
     desconectar_db(guia[1])
 
-def actualizador_datos_db_primera_vez(tabla, nombre, ruta):
+def eliminador_registros_antiguos(tabla, eliminado):
     guia = conectar_db()
-    guia[0].execute(f"INSERT INTO {tabla} (Nombre, Ruta) VALUES (?, ?)", (nombre, ruta,))
+    guia[0].execute(f"DELETE FROM {tabla} WHERE Nombre = ?", (eliminado,))
     guia[1].commit()
-    print(f"Actualizado {nombre} en {tabla}")
     desconectar_db(guia[1])
+
+def actualizador_archivos_db(tabla, nombre, ruta):
+    guia = conectar_db()
+    guia[0].execute(f"INSERT OR IGNORE INTO {tabla} (Nombre, Ruta) VALUES (?, ?)", (nombre, ruta,))
+    guia[1].commit()
+    desconectar_db(guia[1])
+
+def obtener_horarios_carpetas(tabla):
+    guia = conectar_db()
+    guia[0].execute(f"SELECT Fecha_modificacion FROM revisiones WHERE Nombre = ?", (tabla,))
+    fecha = guia[0].fetchone()
+    desconectar_db(guia[1])
+    return fecha
+
+def registrador_revisiones(fecha, nombre):
+    guia = conectar_db()
+    guia[0].execute("INSERT OR IGNORE INTO revisiones (Nombre, Fecha_modificacion) VALUES (?, ?)", (nombre, fecha,))
+    guia[0].execute("UPDATE revisiones SET Fecha_modificacion = ? WHERE Nombre = ?", (fecha, nombre,))
+    guia[1].commit()
+    desconectar_db(guia[1])
+
+def obtener_todos_registros_db(tabla):
+    guia = conectar_db()
+    guia[0].execute(f"SELECT Nombre FROM {tabla}")
+    nombres = [nombre[0] for nombre in guia[0].fetchall()]
+    desconectar_db(guia[1])
+    return nombres
 
 def obtener_memes(categoria):
     guia = conectar_db()

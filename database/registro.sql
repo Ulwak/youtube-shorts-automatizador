@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS musica (
     Nombre TEXT NOT NULL,
     Fecha_uso TEXT,
     Estado INTEGER NOT NULL DEFAULT 0 CHECK (Estado IN (0, 1)),
-    Ruta TEXT NOT NULL
+    Ruta TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS fondos (
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS fondos (
     Nombre TEXT NOT NULL,
     Fecha_uso TEXT,
     Estado INTEGER NOT NULL DEFAULT 0 CHECK (Estado IN (0, 1)),
-    Ruta TEXT NOT NULL
+    Ruta TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS likes (
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS likes (
     Nombre TEXT NOT NULL,
     Fecha_uso TEXT,
     Estado INTEGER NOT NULL DEFAULT 0 CHECK (Estado IN (0, 1)),
-    Ruta TEXT NOT NULL
+    Ruta TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS comentarios (
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS comentarios (
     Nombre TEXT NOT NULL,
     Fecha_uso TEXT,
     Estado INTEGER NOT NULL DEFAULT 0 CHECK (Estado IN (0, 1)),
-    Ruta TEXT NOT NULL
+    Ruta TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS shorts (

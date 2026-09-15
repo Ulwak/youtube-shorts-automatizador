@@ -3,8 +3,9 @@ tiempo_inicial = perf_counter()
 import datetime
 from Base.selector import seleccionador_archivos
 from Base.ensamblador import ensamblador_short
+from Base.actualizador_db import actualizar_archivos, verificar_ultima_fecha_modificacion, comparar_fechas_de_modificacion
 from api_memes_google.descargador_y_verificador_memes import descargador_verificador, obtener_memes_ya_almacenados
-from api_memes_google.verificadores_creador_sql import iniciar_db, obtener_memes, obtener_archivos, actualizar_db, registrar_shorts, obtener_horario
+from api_memes_google.verificadores_creador_sql import iniciar_db, obtener_memes, obtener_archivos, actualizar_db, registrar_shorts, obtener_horario, obtener_horarios_carpetas, actualizador_archivos_db, registrador_revisiones, obtener_todos_registros_db, eliminador_registros_antiguos
 from Base.subidor import subir_short
 from Base.log import crear_logs
 
@@ -17,6 +18,18 @@ def main():
     except Exception as error_bd:
         logs["database"].exception(f"Ocurrio un error con la base de datos: {error_bd}")
         exit()
+
+    tablas = ["musica", "comentarios", "fondos", "likes"]
+    print("Actualizando datos de la DB")
+    for tabla in tablas:
+        ultima_modificacion = verificar_ultima_fecha_modificacion(tabla, obtener_horarios_carpetas)
+        if ultima_modificacion is None:
+            actualizar_archivos(tabla, actualizador_archivos_db, registrador_revisiones, obtener_todos_registros_db, eliminador_registros_antiguos)
+        else:
+            continuar = comparar_fechas_de_modificacion(ultima_modificacion, tabla)
+            if continuar:
+                actualizar_archivos(tabla, actualizador_archivos_db, registrador_revisiones, obtener_todos_registros_db, eliminador_registros_antiguos)
+            
     SHORTS_SUBIDOS = 0
     while True:
         try:
