@@ -9,6 +9,7 @@ TAMAÑO_MEMES_CENTRALES = (int(ANCHO_DE_VIDEO * 0.42), int(ALTO_DE_VIDEO * 0.18)
 MARGEN_ALTURA = int(ALTO_DE_VIDEO * 0.03)
 
 def size_de_imagenes(memes, fondo, like, comentarios):
+    
     imagen_fondo = ImageClip(str(fondo)).with_duration(DURACION_DEL_SHORT)
 
     imagen_memes = [ImageClip(str(i)).with_duration(DURACION_DEL_SHORT) for i in memes]

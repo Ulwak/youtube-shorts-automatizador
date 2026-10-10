@@ -3,9 +3,9 @@ tiempo_inicial = perf_counter()
 import datetime
 from Base.selector import seleccionador_archivos
 from Base.ensamblador import ensamblador_short
-from Base.actualizador_db import actualizar_archivos, verificar_ultima_fecha_modificacion, comparar_fechas_de_modificacion
+from DB.actualizador_db import actualizar_archivos, verificar_ultima_fecha_modificacion, comparar_fechas_de_modificacion
 from api_memes_google.descargador_y_verificador_memes import descargador_verificador, obtener_memes_ya_almacenados
-from api_memes_google.verificadores_creador_sql import iniciar_db, obtener_memes, obtener_archivos, actualizar_db, registrar_shorts, obtener_horario, obtener_horarios_carpetas, actualizador_archivos_db, registrador_revisiones, obtener_todos_registros_db, eliminador_registros_antiguos
+from DB.verificadores_creador_sql import iniciar_db, obtener_memes, obtener_archivos, actualizar_db, registrar_shorts, obtener_horario, obtener_horarios_carpetas, actualizador_archivos_db, registrador_revisiones, obtener_todos_registros_db, eliminador_registros_antiguos, verificar_si_hay_respaldos, respaldar
 from Base.subidor import subir_short
 from Base.log import crear_logs
 
@@ -15,6 +15,39 @@ def main():
         iniciar_db()
         logs["database"].info("Base de datos inicializada correctamente")
         logs["ejecucion"].info("Base de datos inicializada correctamente")
+        respaldo = verificar_si_hay_respaldos()
+        if respaldo is not None:
+            ultimo_respaldo = datetime.datetime.fromisoformat(respaldo)
+            fecha_actual = datetime.datetime.now()
+            diferencia = (fecha_actual - ultimo_respaldo).days
+            if diferencia >= 1:
+                while True:
+                    decision = input(f"Han pasado {diferencia} dias desde el ultimo respaldo de la base de datos, ¿Desea realizar un respaldo ahora? (Si / No): ").lower()
+                    if decision not in ["si", "no"]:
+                        print("Ingrese una opcion valida (Si / No)")
+                    elif decision == "si":
+                            respaldar()
+                            break
+                    else:
+                        print("Omitiendo el respaldo por decision del usuario")
+                        logs["database"].warning(f"El ultimo respaldo de la DB fue hace {diferencia} dias")
+                        break
+        else:
+            while True:
+                decision = input("No se encontraron respaldos de la Base de Datos, ¿Desea realizar un respaldo ahora? (Si / No): ").lower()
+                if decision not in ["si", "no"]:
+                    print("Ingrese una opcion valida (Si / No)")
+                elif decision == "si":
+                    respaldar()
+                    break
+                else:
+                    print("Omitiendo el respaldo por peticion del usuario.")
+                    logs["database"].warning("No existe un respaldo para la DB")
+                    break
+                
+            
+            
+
     except Exception as error_bd:
         logs["database"].exception(f"Ocurrio un error con la base de datos: {error_bd}")
         exit()

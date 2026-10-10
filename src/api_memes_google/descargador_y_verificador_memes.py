@@ -1,6 +1,6 @@
 from pathlib import Path
 from PIL import Image
-from api_memes_google.verificadores_creador_sql import verificar_nombre, verificar_phash, registrar
+from DB.verificadores_creador_sql import verificar_nombre, verificar_phash, registrar
 from api_memes_google.verificador_categoria_google import llamada_api
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections import deque

@@ -108,3 +108,4 @@ Finalmente armador.py se encarga de actualizar el estado de los memes, imagen pa
 2. Mayor manejo de errores.
 3. Mayor sistema de logs.
 4. Refactorizar para mantener el codigo mas legible.
+5. Mejorar el sistema de Backups para permitir el almacenamiento en la nube y no solo a nivel local. Ampliar las copias a varios backups y no unicamente 1 solo archivo que se reemplaza en cada respaldo.

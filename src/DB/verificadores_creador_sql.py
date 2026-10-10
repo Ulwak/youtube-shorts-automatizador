@@ -1,5 +1,6 @@
 import sqlite3
 import logging
+from datetime import datetime
 from pathlib import Path
 
 log_db = logging.getLogger("database")
@@ -27,17 +28,62 @@ def iniciar_db():
     guia[1].commit()
     desconectar_db(guia[1])
 
+def verificar_si_hay_respaldos():
+    guia = conectar_db()
+    guia[0].execute("SELECT Fecha_Respaldo From respaldos ORDER BY ID DESC LIMIT 1")
+    ultimo_respaldo = guia[0].fetchone()
+    desconectar_db(guia[1])
+    if ultimo_respaldo:
+        return ultimo_respaldo[0]
+    return None
+
+def registrar_nuevo_respaldo(hora_respaldo,):
+    guia = conectar_db()
+    try:
+        guia[0].execute("INSERT INTO respaldos (Fecha_Respaldo) VALUES (?)", (hora_respaldo, ))
+        guia[1].commit()
+    finally:
+        desconectar_db(guia[1])
+
+def realizar_respaldo():
+    guia = conectar_db()
+    carpeta_respaldo = Path(__file__).parent.parent.parent / "Respaldo-DB"
+    carpeta_respaldo.mkdir(parents=True, exist_ok=True)
+    destino_respaldo = carpeta_respaldo / "respaldo.db"
+    destino = sqlite3.connect(destino_respaldo)
+    try:
+        with destino:
+            guia[1].backup(destino)
+    finally:
+        desconectar_db(guia[1])
+        desconectar_db(destino)
+
+def respaldar():
+    try:
+        realizar_respaldo()
+        fecha_respaldo = datetime.now().isoformat()
+        registrar_nuevo_respaldo(fecha_respaldo)
+        print("Respaldo de la Base de Datos creado")
+        log_db.info("Respaldo de la Base de Datos creado")
+    except Exception as error_db:
+        log_db.exception(f"Ocurrio un error al realizar el respaldo de la base de datos: {error_db}")
+        print(f"Ocurrio un error al momento de crear el respaldo, error detallado en el log 'Database'.")
+    
 def eliminador_registros_antiguos(tabla, eliminado):
     guia = conectar_db()
-    guia[0].execute(f"DELETE FROM {tabla} WHERE Nombre = ?", (eliminado,))
-    guia[1].commit()
-    desconectar_db(guia[1])
+    try:
+        guia[0].execute(f"DELETE FROM {tabla} WHERE Nombre = ?", (eliminado,))
+        guia[1].commit()
+    finally:    
+        desconectar_db(guia[1])
 
 def actualizador_archivos_db(tabla, nombre, ruta):
     guia = conectar_db()
-    guia[0].execute(f"INSERT OR IGNORE INTO {tabla} (Nombre, Ruta) VALUES (?, ?)", (nombre, ruta,))
-    guia[1].commit()
-    desconectar_db(guia[1])
+    try:
+        guia[0].execute(f"INSERT OR IGNORE INTO {tabla} (Nombre, Ruta) VALUES (?, ?)", (nombre, ruta,))
+        guia[1].commit()
+    finally:
+        desconectar_db(guia[1])
 
 def obtener_horarios_carpetas(tabla):
     guia = conectar_db()
@@ -48,10 +94,12 @@ def obtener_horarios_carpetas(tabla):
 
 def registrador_revisiones(fecha, nombre):
     guia = conectar_db()
-    guia[0].execute("INSERT OR IGNORE INTO revisiones (Nombre, Fecha_modificacion) VALUES (?, ?)", (nombre, fecha,))
-    guia[0].execute("UPDATE revisiones SET Fecha_modificacion = ? WHERE Nombre = ?", (fecha, nombre,))
-    guia[1].commit()
-    desconectar_db(guia[1])
+    try:
+        guia[0].execute("INSERT OR IGNORE INTO revisiones (Nombre, Fecha_modificacion) VALUES (?, ?)", (nombre, fecha,))
+        guia[0].execute("UPDATE revisiones SET Fecha_modificacion = ? WHERE Nombre = ?", (fecha, nombre,))
+        guia[1].commit()
+    finally:
+        desconectar_db(guia[1])
 
 def obtener_todos_registros_db(tabla):
     guia = conectar_db()
@@ -93,15 +141,17 @@ def obtener_archivos(tipo):
             intentos += 1
         else:
             desconectar_db(guia[1])
-            print(f"Rellene la carpeta de {tipo} con minimo 2 memes.")
-            log_db.error(f"Hay menos de 1 imagen en la carpeta de {tipo}. Rellenar para continuar el funcionamiento normal.")
+            print(f"Rellene la carpeta de {tipo} con imagenes.")
+            log_db.error(f"Faltan imagenes en la carpeta de {tipo}. Rellenar para continuar el funcionamiento normal.")
             exit()
 
 def registrar_shorts(id_del_short, nombre, hora_subida, fecha_creacion, categoria):
     guia = conectar_db()
-    guia[0].execute("INSERT INTO shorts (Short_ID, Nombre, Hora_Subida, Fecha_Creacion, Categoria) VALUES (?, ?, ?, ?, ?)", (id_del_short, nombre, hora_subida, fecha_creacion, categoria,))
-    guia[1].commit()
-    desconectar_db(guia[1])
+    try:
+        guia[0].execute("INSERT INTO shorts (Short_ID, Nombre, Hora_Subida, Fecha_Creacion, Categoria) VALUES (?, ?, ?, ?, ?)", (id_del_short, nombre, hora_subida, fecha_creacion, categoria,))
+        guia[1].commit()
+    finally:
+        desconectar_db(guia[1])
 
 def obtener_horario():
     guia = conectar_db()
@@ -112,21 +162,27 @@ def obtener_horario():
         
 def actualizar_db(tabla, ruta, fecha):
     guia = conectar_db()
-    guia[0].execute(f"UPDATE {tabla} SET Estado = 1, Fecha_uso = ? WHERE Ruta = ?", (fecha, ruta,))
-    guia[1].commit()
-    desconectar_db(guia[1])
+    try:
+        guia[0].execute(f"UPDATE {tabla} SET Estado = 1, Fecha_uso = ? WHERE Ruta = ?", (fecha, ruta,))
+        guia[1].commit()
+    finally:
+        desconectar_db(guia[1])
 
 def reciclar_archivos(tipo):
     guia = conectar_db()
-    guia[0].execute(f"UPDATE {tipo} SET Estado = 0")
-    guia[1].commit()
-    desconectar_db(guia[1])
+    try:    
+        guia[0].execute(f"UPDATE {tipo} SET Estado = 0")
+        guia[1].commit()
+    finally:
+        desconectar_db(guia[1])
 
 def reciclar_memes(categoria):
     guia = conectar_db()
-    guia[0].execute("UPDATE Memes SET Estado = 0 WHERE Categoria = ?", (categoria,))
-    guia[1].commit()
-    desconectar_db(guia[1])
+    try:    
+        guia[0].execute("UPDATE Memes SET Estado = 0 WHERE Categoria = ?", (categoria,))
+        guia[1].commit()
+    finally:    
+        desconectar_db(guia[1])
 
 def verificar_nombre(nombre_meme):
     guia = conectar_db()
@@ -150,6 +206,8 @@ def verificar_phash(hash_meme):
 
 def registrar(categoria, nombre_meme, hash_meme, Ruta, tiempo):
     guia = conectar_db()
-    guia[0].execute("INSERT INTO Memes (Categoria, Nombre, Phash, Ruta, Fecha) VALUES (?, ?, ?, ?, ?)", (categoria, nombre_meme, hash_meme, Ruta, tiempo))
-    guia[1].commit()
-    desconectar_db(guia[1])
+    try:
+        guia[0].execute("INSERT INTO Memes (Categoria, Nombre, Phash, Ruta, Fecha) VALUES (?, ?, ?, ?, ?)", (categoria, nombre_meme, hash_meme, Ruta, tiempo))
+        guia[1].commit()
+    finally:
+        desconectar_db(guia[1])
