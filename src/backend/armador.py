@@ -1,6 +1,7 @@
 from time import perf_counter
 tiempo_inicial = perf_counter()
 import datetime
+from pathlib import Path
 from Base.selector import seleccionador_archivos
 from Base.ensamblador import ensamblador_short
 from DB.actualizador_db import actualizar_archivos, verificar_ultima_fecha_modificacion, comparar_fechas_de_modificacion
@@ -10,12 +11,13 @@ from Base.subidor import subir_short
 from Base.log import crear_logs
 
 def main():
-    logs = crear_logs()
+    ruta_raiz = Path(__file__).parent.parent.parent
+    logs = crear_logs(ruta_raiz)
     try:
-        iniciar_db()
+        iniciar_db(ruta_raiz)
         logs["database"].info("Base de datos inicializada correctamente")
         logs["ejecucion"].info("Base de datos inicializada correctamente")
-        respaldo = verificar_si_hay_respaldos()
+        respaldo = verificar_si_hay_respaldos(ruta_raiz)
         if respaldo is not None:
             ultimo_respaldo = datetime.datetime.fromisoformat(respaldo)
             fecha_actual = datetime.datetime.now()
@@ -26,7 +28,7 @@ def main():
                     if decision not in ["si", "no"]:
                         print("Ingrese una opcion valida (Si / No)")
                     elif decision == "si":
-                            respaldar()
+                            respaldar(ruta_raiz)
                             break
                     else:
                         print("Omitiendo el respaldo por decision del usuario")
@@ -38,16 +40,13 @@ def main():
                 if decision not in ["si", "no"]:
                     print("Ingrese una opcion valida (Si / No)")
                 elif decision == "si":
-                    respaldar()
+                    respaldar(ruta_raiz)
                     break
                 else:
                     print("Omitiendo el respaldo por peticion del usuario.")
                     logs["database"].warning("No existe un respaldo para la DB")
                     break
                 
-            
-            
-
     except Exception as error_bd:
         logs["database"].exception(f"Ocurrio un error con la base de datos: {error_bd}")
         exit()
@@ -55,13 +54,13 @@ def main():
     tablas = ["musica", "comentarios", "fondos", "likes"]
     print("Actualizando datos de la DB")
     for tabla in tablas:
-        ultima_modificacion = verificar_ultima_fecha_modificacion(tabla, obtener_horarios_carpetas)
+        ultima_modificacion = verificar_ultima_fecha_modificacion(tabla, obtener_horarios_carpetas, ruta_raiz)
         if ultima_modificacion is None:
-            actualizar_archivos(tabla, actualizador_archivos_db, registrador_revisiones, obtener_todos_registros_db, eliminador_registros_antiguos)
+            actualizar_archivos(tabla, actualizador_archivos_db, registrador_revisiones, obtener_todos_registros_db, eliminador_registros_antiguos, ruta_raiz)
         else:
-            continuar = comparar_fechas_de_modificacion(ultima_modificacion, tabla)
+            continuar = comparar_fechas_de_modificacion(ultima_modificacion, tabla, ruta_raiz)
             if continuar:
-                actualizar_archivos(tabla, actualizador_archivos_db, registrador_revisiones, obtener_todos_registros_db, eliminador_registros_antiguos)
+                actualizar_archivos(tabla, actualizador_archivos_db, registrador_revisiones, obtener_todos_registros_db, eliminador_registros_antiguos, ruta_raiz)
             
     SHORTS_SUBIDOS = 0
     while True:
@@ -74,11 +73,11 @@ def main():
             print("Ingrese un numero entero para continuar")
             logs["inputs_usuario"].warning("El usuario ingreso un numero el cual no es entero")
     try:
-        descargador_verificador(cantidad_shorts)
+        descargador_verificador(cantidad_shorts, ruta_raiz)
         logs["ejecucion"].info("Descarga de memes realizada con exito")
     except Exception as error_red:
         logs["red"].exception(f"Ocurrio un error de red: {error_red}")
-        stock = obtener_memes_ya_almacenados()
+        stock = obtener_memes_ya_almacenados(ruta_raiz)
         if any(cantidad < (cantidad_shorts * 2) for cantidad in stock.values()):
             print("Se detecto que en las carpetas no hay la cantidad minima de memes. ¿Desea continuar? (Por cada short se utilizaran 2 memes, si una carpeta tiene menos que la cantidad de shorts * 2 el programa movera los memes usados correspondientes a esa categoria a la carpeta de disponibles para asegurar el funcionamiento aunque esto podria implicar la repeticion de memes.)")
             continuar = input("¿Desea continuar la ejecucion? (Ingrese 'Y' para continuar o ingrese cualquier letra / numero para detener la ejecucion y rellenar manualmente las carpetas con memes o ejecutar el programa nuevamente para intentar rellenar las carpetas mediante la API) ").lower()
@@ -87,20 +86,20 @@ def main():
                 exit()
 
     for _ in range(cantidad_shorts):
-        memes, elementos, carpeta = seleccionador_archivos(obtener_memes, obtener_archivos)
+        memes, elementos, carpeta = seleccionador_archivos(obtener_memes, obtener_archivos, ruta_raiz)
         logs["ejecucion"].info("Se seleccionaron los memes para el short")
-        ruta_short = ensamblador_short(memes, elementos[0], elementos[1], elementos[2], elementos[3])
+        ruta_short = ensamblador_short(memes, elementos[0], elementos[1], elementos[2], elementos[3], ruta_raiz)
         logs["ejecucion"].info("Se ensamblo el short")
-        id_short = subir_short(ruta_short, carpeta.name, registrar_shorts, obtener_horario)
+        id_short = subir_short(ruta_short, carpeta.name, registrar_shorts, obtener_horario, ruta_raiz)
         logs["ejecucion"].info("Se subio el short")
         if id_short is None:
             print("No se movieron los archivos")
         else:
             fecha = datetime.date.today().isoformat()
             for elemento in elementos:
-                actualizar_db(elemento.parent.name, str(elemento), fecha)
+                actualizar_db(elemento.parent.name, str(elemento), fecha, ruta_raiz)
             for n in memes:
-                actualizar_db(n.parent.parent.name, str(n), fecha)
+                actualizar_db(n.parent.parent.name, str(n), fecha, ruta_raiz)
             print(f"youtube.com/shorts/{id_short}")
             SHORTS_SUBIDOS = SHORTS_SUBIDOS + 1
             print(f"Shorts ya subidos: {SHORTS_SUBIDOS}")

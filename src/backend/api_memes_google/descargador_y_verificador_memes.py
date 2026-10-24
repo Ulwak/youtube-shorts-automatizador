@@ -1,4 +1,3 @@
-from pathlib import Path
 from PIL import Image
 from DB.verificadores_creador_sql import verificar_nombre, verificar_phash, registrar
 from api_memes_google.verificador_categoria_google import llamada_api
@@ -77,8 +76,8 @@ def obtener_nombre_meme(url):
     nombre = url_fraccionada[-1]
     return nombre
 
-def guardar_imagen(categoria, nombre_meme, imagen):
-    carpeta_categoria = Path(__file__).parent.parent.parent / "memes" / categoria
+def guardar_imagen(categoria, nombre_meme, imagen, ruta_raiz):
+    carpeta_categoria = ruta_raiz / "memes" / categoria
     carpeta_categoria.mkdir(parents=True, exist_ok=True)
     ruta_meme = carpeta_categoria / nombre_meme
     imagen.seek(0)
@@ -86,8 +85,8 @@ def guardar_imagen(categoria, nombre_meme, imagen):
         meme.write(imagen.read())
     return ruta_meme
 
-def obtener_memes_ya_almacenados():
-    ruta_carpetas_memes = Path(__file__).parent.parent.parent / "memes"
+def obtener_memes_ya_almacenados(ruta_raiz):
+    ruta_carpetas_memes = ruta_raiz / "memes"
     categorias = [n for n in ruta_carpetas_memes.iterdir() if n.is_dir()]
     stock_memes = {}
     for n in categorias:
@@ -104,14 +103,14 @@ def filtrado_url_y_cantidad_de_url(lista_url):
     cantidad_url_filtrada = len(lista_url_limpia)
     return cantidad_url_sin_filtrar, cantidad_url_filtrada, lista_url_limpia
 
-def registrador_memes(categoria, nombre_meme, imagen, phash, stock_memes, lock):
+def registrador_memes(categoria, nombre_meme, imagen, phash, stock_memes, lock, ruta_raiz):
     try:
         fecha = datetime.date.today()
         fecha = fecha.isoformat()
         with lock:
-            ruta_meme = str(guardar_imagen(categoria, nombre_meme, imagen))
+            ruta_meme = str(guardar_imagen(categoria, nombre_meme, imagen, ruta_raiz))
             stock_memes[categoria] = stock_memes[categoria] + 1
-            registrar(categoria, nombre_meme, phash, ruta_meme, fecha)
+            registrar(categoria, nombre_meme, phash, ruta_meme, fecha, ruta_raiz)
         log_baseDatos.info(f"Meme {nombre_meme} registrado en la base de datos")
         print("Meme guardado con exito")
         print(f"Categoria del meme: {categoria}")
@@ -127,7 +126,6 @@ def limpieza_llamadas_api(tiempo_ahora):
         else:
             return ultimo_elemento
     
-        
 def esperar_a_gemini():
     llamada_api_disponible = True
     while llamada_api_disponible:
@@ -143,10 +141,7 @@ def esperar_a_gemini():
         time.sleep(tiempo_espera)
         log_gemini.info(f"Esperando {tiempo_espera} para evitar saturar la api de Gemini")
 
-
-
-
-def validar_memes(url, subreddit, stock_memes, lock, nombres_en_proceso, phash_en_proceso):
+def validar_memes(url, subreddit, stock_memes, lock, nombres_en_proceso, phash_en_proceso, ruta_raiz):
     try:
         nombre_meme = obtener_nombre_meme(url)
         log_descarga_memes.info(f"[{subreddit}] Procesando meme: {nombre_meme}")
@@ -154,7 +149,7 @@ def validar_memes(url, subreddit, stock_memes, lock, nombres_en_proceso, phash_e
         with lock:
             if nombre_meme in nombres_en_proceso:
                 return meme_no_valido
-            existe = verificar_nombre(nombre_meme)
+            existe = verificar_nombre(nombre_meme, ruta_raiz)
             nombre_meme_procesado = nombre_meme
             nombres_en_proceso.add(nombre_meme_procesado)
         if existe:
@@ -168,7 +163,7 @@ def validar_memes(url, subreddit, stock_memes, lock, nombres_en_proceso, phash_e
             with lock:
                 if phash in phash_en_proceso:
                     return meme_no_valido
-                existe = verificar_phash(phash)
+                existe = verificar_phash(phash, ruta_raiz)
                 phash_procesado = phash
                 phash_en_proceso.add(phash_procesado)
             if existe:
@@ -205,8 +200,8 @@ def validar_memes(url, subreddit, stock_memes, lock, nombres_en_proceso, phash_e
                 if "phash_procesado" in locals():
                     phash_en_proceso.discard(phash_procesado)
 
-def descargador_verificador(shorts_a_crear):
-    stock_memes = obtener_memes_ya_almacenados()
+def descargador_verificador(shorts_a_crear, ruta_raiz):
+    stock_memes = obtener_memes_ya_almacenados(ruta_raiz)
     objetivo = shorts_a_crear * 2
     log_ejecucion.info(f"Cantidad de memes requeridos definida ({objetivo})")
     while any(n < objetivo for n in stock_memes.values()):
@@ -215,8 +210,8 @@ def descargador_verificador(shorts_a_crear):
         log_ejecucion.info(f"Obtenidas las {cantidad_url_sin_filtrar} URLs de los memes")
         log_ejecucion.info(f"Filtradas las URLs que contenian formatos de imagenes no compatibles. URLs validas: {cantidad_url_limpia}")
         with ThreadPoolExecutor(max_workers=8) as trabajador:
-            tareas = [trabajador.submit(validar_memes, i, subreddit, stock_memes, lock_datos, nombres_en_proceso, phash_en_proceso) for i in lista_url_limpia]
+            tareas = [trabajador.submit(validar_memes, i, subreddit, stock_memes, lock_datos, nombres_en_proceso, phash_en_proceso, ruta_raiz) for i in lista_url_limpia]
             for tarea in as_completed(tareas):
                 meme_valido, categoria, nombre_meme, imagen, phash = tarea.result()
                 if meme_valido:
-                    registrador_memes(categoria, nombre_meme, imagen, phash, stock_memes, lock_datos)
+                    registrador_memes(categoria, nombre_meme, imagen, phash, stock_memes, lock_datos, ruta_raiz)

@@ -1,5 +1,4 @@
 from moviepy import ImageClip, AudioFileClip, CompositeVideoClip, TextClip
-from pathlib import Path
 
 ANCHO_DE_VIDEO = 1080
 ALTO_DE_VIDEO = 1920
@@ -25,11 +24,11 @@ def size_de_imagenes(memes, fondo, like, comentarios):
 
     return imagenes, imagen_fondo, imagen_memes
 
-def textos_short_creacion_ubicacion():
+def textos_short_creacion_ubicacion(ruta_raiz):
     texto1 = TextClip(
         text="\nMEMES PARA TODOS/AS\n",
         font_size=70,
-        font= str(Path(__file__).parent.parent.parent / "fuentes" / "Anton" / "Anton-Regular.ttf"),
+        font= str(ruta_raiz / "fuentes" / "Anton" / "Anton-Regular.ttf"),
         color="#ff66cc",
         stroke_color="#ff00aa",
         stroke_width=3,
@@ -39,7 +38,7 @@ def textos_short_creacion_ubicacion():
     texto2 = TextClip(
         text="\nLIKE Y SUSCRIBETE\n",
         font_size=70,
-        font= str(Path(__file__).parent.parent.parent / "fuentes" / "Anton" / "Anton-Regular.ttf"),
+        font= str(ruta_raiz / "fuentes" / "Anton" / "Anton-Regular.ttf"),
         color="#ff66cc",
         stroke_color="#ff00aa",
         stroke_width=3,
@@ -81,11 +80,11 @@ def ubicacion_de_imagenes(imagenes, imagen_memes, texto1, texto2):
 
     return imagenes, imagen_memes, texto1, texto2
 
-def ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica):
+def ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica, ruta_raiz):
 
     musica = AudioFileClip(str(musica)).with_duration(DURACION_DEL_SHORT)
 
-    ubicacion_shorts = Path(__file__).parent.parent.parent / "output"
+    ubicacion_shorts = ruta_raiz / "output"
     contador = len(list([n for n in ubicacion_shorts.iterdir() if n.is_file() and not n.name.startswith('.')]))
     nombre = f"short_{contador + 1:03d}.mp4"
 
@@ -102,14 +101,14 @@ def ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica
 
     return ruta_short
 
-def ensamblador_short(memes, musica,fondo, like, comentarios):
+def ensamblador_short(memes, musica,fondo, like, comentarios, ruta_raiz):
     imagenes, imagen_fondo, imagen_memes = size_de_imagenes(memes, fondo, like, comentarios)
 
-    texto1, texto2 = textos_short_creacion_ubicacion()
+    texto1, texto2 = textos_short_creacion_ubicacion(ruta_raiz)
 
     imagenes, imagen_memes, texto1, texto2 = ubicacion_de_imagenes(imagenes, imagen_memes, texto1, texto2)
     
-    ruta_short = ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica)
+    ruta_short = ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica, ruta_raiz)
 
     return ruta_short
 

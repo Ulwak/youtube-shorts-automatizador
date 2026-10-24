@@ -35,10 +35,10 @@ def autenticacion():
             token_archivo.write(credenciales.to_json())
     return credenciales
 
-def calcular_proximo_horario(obtener_horario):
+def calcular_proximo_horario(obtener_horario, ruta_raiz):
     horarios = [datetime.strptime(x, "%H:%M").time() for x in ["5:45", "11:45", "17:45", "23:45"]]
     zona_horaria = ZoneInfo("America/Buenos_Aires")
-    ultimo_horario = obtener_horario()
+    ultimo_horario = obtener_horario(ruta_raiz)
 
     if ultimo_horario is None:
         horario_actual = datetime.now().time()
@@ -64,13 +64,13 @@ def calcular_proximo_horario(obtener_horario):
             fecha_y_hora_subida = (datetime.combine(dia_ultimo_horario, horarios[posicion_siguiente], tzinfo=zona_horaria)).isoformat()
             return fecha_y_hora_subida
 
-def subir_short(ruta_short, categoria, registrar_shorts, obtener_horario):
-    fecha_y_hora_subida = calcular_proximo_horario(obtener_horario)
+def subir_short(ruta_short, categoria, registrar_shorts, obtener_horario, ruta_raiz):
+    fecha_y_hora_subida = calcular_proximo_horario(obtener_horario, ruta_raiz)
     try:
         credenciales = autenticacion()
         youtube = build("youtube", "v3", credentials=credenciales)
 
-        ruta_json = Path(__file__).parent.parent.parent / "metadata" / "metadata.json"
+        ruta_json = ruta_raiz / "metadata" / "metadata.json"
         with open(ruta_json, "r", encoding="utf-8") as archivo:
             contenido = json.load(archivo)
         
@@ -110,7 +110,7 @@ def subir_short(ruta_short, categoria, registrar_shorts, obtener_horario):
     
         response = request.execute()
         id_del_short = response["id"]
-        registrar_shorts(id_del_short, titulo, fecha_y_hora_subida, fecha_hoy, categoria)
+        registrar_shorts(id_del_short, titulo, fecha_y_hora_subida, fecha_hoy, categoria, ruta_raiz)
         print("Carga Exitosa")
         return id_del_short
     

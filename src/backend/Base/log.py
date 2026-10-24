@@ -1,8 +1,4 @@
 import logging
-from pathlib import Path
-
-ruta_logs = Path(__file__).parent.parent.parent / "logs"
-ruta_logs.mkdir(parents=True, exist_ok=True)
 
 registro_logs = {
     "youtube": "youtube.log",
@@ -18,7 +14,9 @@ registro_logs = {
     "duracion": "duracion.log"
 }
 
-def crear_logs():
+def crear_logs(ruta_raiz):
+    ruta_logs = ruta_raiz / "logs"
+    ruta_logs.mkdir(parents=True, exist_ok=True)
     logs = {}
     for nombre, archivo in registro_logs.items():
         #crea el log
