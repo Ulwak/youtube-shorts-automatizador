@@ -1,3 +1,13 @@
 body {
-    text-align: center
+    text-align: center;
+    background: rgb(255, 196, 129);
+}
+
+table, th, td {
+    margin: 1px auto;
+    border: 1px solid black;
+}
+
+#crear_short {
+    margin: 5px auto;
 }

@@ -63,6 +63,7 @@ def main():
                 actualizar_archivos(tabla, actualizador_archivos_db, registrador_revisiones, obtener_todos_registros_db, eliminador_registros_antiguos, ruta_raiz)
             
     SHORTS_SUBIDOS = 0
+    
     while True:
         try:
             cantidad_shorts = int(input("Ingrese la cantidad de shorts que usted desea crear (mayor o igual a 1): "))
@@ -106,6 +107,7 @@ def main():
     logs["ejecucion"].info("Finalizacion de la ejecucion del programa")
     tiempo_total = perf_counter() - tiempo_inicial
     logs["duracion"].info(f"Duracion total de la ejecucion: {tiempo_total}")
+    return id_short
 
 if __name__ == "__main__":
     main()

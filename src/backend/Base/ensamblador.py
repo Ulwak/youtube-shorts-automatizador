@@ -1,3 +1,4 @@
+import tempfile
 from moviepy import ImageClip, AudioFileClip, CompositeVideoClip, TextClip
 
 ANCHO_DE_VIDEO = 1080
@@ -90,7 +91,7 @@ def ensamblar_short(imagenes, imagen_fondo, imagen_memes, texto1, texto2, musica
 
     short = CompositeVideoClip([imagen_fondo, imagen_memes[0], imagenes[0], imagenes[1], imagen_memes[1], texto1, texto2]).with_audio(musica)
 
-    short.write_videofile(str(ubicacion_shorts / nombre), fps = 30)
+    short.write_videofile(str(ubicacion_shorts / nombre), fps = 30, temp_audiofile_path = tempfile.gettempdir())
 
     cerrar = [imagen_fondo, texto1, texto2, musica] + imagenes + imagen_memes
 
