@@ -22,9 +22,9 @@ def llamar_armador():
         capture_output = True,
         text = True
         )
-    id_del_short = short.stdout.strip()
+    id_del_short = short.stdout.strip().splitlines()
     if id_del_short:
-        return jsonify({"respuesta": f"youtube.com/shorts/{id_del_short}"})
+        return jsonify({"respuesta": f"youtube.com/shorts/{id_del_short[-2]}"})
     else:
         return jsonify({"respuesta": "Fallo la subida del short"})
 

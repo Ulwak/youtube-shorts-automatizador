@@ -247,5 +247,5 @@ database/*.db
 database/*.db-journal
 database/*.db-wal
 
-
+.VSCodeCounter/2026-10-25_19-54-44/*
 *.mp4

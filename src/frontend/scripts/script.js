@@ -1,20 +1,16 @@
-function esperar(milisegundos) {
-    return new Promise(function(resolve) {
-        setTimeout(resolve, milisegundos);    
-    });
+let empezar_puntitos
+const h2_puntitos = document.getElementById("encabezado_puntitos")
+
+function iniciar_puntitos(){
+    let contador = 0
+    empezar_puntitos = setInterval(() => {
+        contador = (contador + 1) % 5
+        h2_puntitos.innerText = "Procesando" + ".".repeat(contador)}, 1000)
 }
 
-async function procesar(){
-    let contador = 1
-    const h2_puntitos = document.getElementById("encabezado_puntitos")
-    while (true) {
-        h2_puntitos.innerText = `Procesando${".".repeat(contador)}`
-        await esperar(1000)
-        contador = contador + 1
-        if (contador == 7) {
-            contador = 1
-        }
-    }
+function detener_puntitos() {
+    clearInterval(empezar_puntitos)
+    h2_puntitos.innerText = ""
 }
 
 async function enviar_y_recibir_datos() {
@@ -32,11 +28,15 @@ async function enviar_y_recibir_datos() {
     } else if (!reutilizar_memes) {
         h2_informacion.innerText = "Falta aclarar si se tiene permitido reutilizar memes"
         return
-    } else if (!cantidad_shorts){
+    } else if (cantidad_shorts <= 0) {
+        h2_informacion.innerText = "La cantidad de shorts debe ser igual o mayor a 1."
+        return
+    } else if (!cantidad_shorts) {
         h2_informacion.innerText = "Falta introducir la cantidad de shorts a crear"
         return
-    } 
-    
+    }
+
+    iniciar_puntitos()
     input_shorts.disabled = true
 
     const datos = {
@@ -59,15 +59,6 @@ async function enviar_y_recibir_datos() {
         h2_informacion.innerText = "Hubo un error con el servidor. Vuelva a intentar la creacion del short."
     } finally {
         input_shorts.disabled = false
+        detener_puntitos()
     }
-}
-
-function recibir() {
-    fetch("http://localhost:8080/test")
-    .then(paquete => paquete.json())
-    .then(datos => {
-        console.log(datos.respuesta)
-        const test = document.getElementById("test_flask")
-        test.innerText = datos.respuesta
-    }) 
 }
