@@ -1,11 +1,10 @@
 let empezar_puntitos
-const h2_puntitos = document.getElementById("encabezado_puntitos")
 
-function iniciar_puntitos(){
+function iniciar_puntitos(encabezado_puntitos){
     let contador = 0
     empezar_puntitos = setInterval(() => {
         contador = (contador + 1) % 5
-        h2_puntitos.innerText = "Procesando" + ".".repeat(contador)}, 1000)
+        encabezado_puntitos.innerText = "Procesando" + ".".repeat(contador)}, 1000)
 }
 
 function detener_puntitos() {
@@ -14,7 +13,7 @@ function detener_puntitos() {
 }
 
 async function enviar_y_recibir_datos() {
-    const h2_informacion = document.getElementById("resultado_ensamblaje")
+    const h2_informacion = document.getElementById("encabezado_puntitos")
     h2_informacion.innerText = ""
     const input_shorts = document.getElementById("cantidad_shorts")
 
@@ -36,7 +35,7 @@ async function enviar_y_recibir_datos() {
         return
     }
 
-    iniciar_puntitos()
+    iniciar_puntitos(h2_informacion)
     input_shorts.disabled = true
 
     const datos = {

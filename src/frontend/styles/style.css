@@ -6,10 +6,6 @@ table, th, td {
     animation: movimiento_fondo 25s ease infinite;
 }
 
-#crear_short {
-    margin: 5px auto;
-}
-
 body {
     margin: 0;
     padding: 0;
@@ -34,6 +30,11 @@ body {
     background: linear-gradient(-45deg, #0b132b, #3a2e56, #7209b7, #00b4d8);
     background-size: 400% 400%;
     animation: movimiento_fondo 15s ease infinite;
+    display: flex;
+    flex-direction: column;   
+    align-items: center;      
+    text-align: center;      
+    gap: 20px;                
 }
 
 @keyframes movimiento_fondo {
